@@ -38,7 +38,7 @@ class Game0WebViewActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = WebViewClient()
-        webView.loadUrl("file:///android_asset/GelocationTest.html")
+        webView.loadUrl("file:///android_asset/GeolocationTest.html")
 
         // Request location permissions if not already granted
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){

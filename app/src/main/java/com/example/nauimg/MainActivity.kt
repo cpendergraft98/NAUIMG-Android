@@ -15,4 +15,14 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, Game0WebViewActivity::class.java)
         startActivity(intent)
     }
+
+    fun btnGame1Handler(view: View){
+        val intent = Intent(this, Game1WebViewActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun btnGame2Handler(view: View){
+        val intent = Intent(this, Game2WebViewActivity::class.java)
+        startActivity(intent)
+    }
 }

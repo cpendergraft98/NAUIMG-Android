@@ -1,6 +1,5 @@
 package com.example.nauimg
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.webkit.GeolocationPermissions
@@ -8,8 +7,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.content.Intent
 import android.view.View
 

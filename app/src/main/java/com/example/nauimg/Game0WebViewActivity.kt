@@ -1,13 +1,20 @@
 package com.example.nauimg
 
-import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
+import android.webkit.GeolocationPermissions
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.content.Intent
+import android.view.View
 
 class Game0WebViewActivity : AppCompatActivity() {
+    private val PERMISSIONS_REQUEST_LOCATION = 100
     private  lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +22,6 @@ class Game0WebViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_game0_web_view)
 
         webView = findViewById(R.id.webView)
-        webView.webViewClient = WebViewClient()
 
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
@@ -25,7 +31,28 @@ class Game0WebViewActivity : AppCompatActivity() {
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
 
-        webView.loadUrl("file:///android_asset/LiveDataTest-SC.html")
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback){
+                callback.invoke(origin, true, false)
+            }
+        }
+
+        webView.webViewClient = WebViewClient()
+        webView.loadUrl("file:///android_asset/GelocationTest.html")
+
+        // Request location permissions if not already granted
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_LOCATION){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                webView.reload()
+            }
+        }
     }
 
     fun btnReturnHandler(view: View){

@@ -117,6 +117,7 @@ function generateVals(){
   GE.jitter = getRandomInt(12);
 }
 
+// Calls to update innerHTML throw an error, research with ChatGPT
 // Function to get user location
 function getLocation() {
   const locationElement = document.getElementById("location");
@@ -130,7 +131,7 @@ function getLocation() {
         GE.latitude = position.coords.latitude;
         GE.longitude = position.coords.longitude;
 
-        locationElement.innerHTML = 'Latitude: ${latitude}, Longitude: ${longitude}';
+        //locationElement.innerHTML = 'Latitude: ${latitude}, Longitude: ${longitude}';
 
         // Call geocoding function
         //reverseGeocode(GE.latitude, GE.longitude);
@@ -139,22 +140,22 @@ function getLocation() {
       function (error) {
         switch(error.code) {
           case error.PERMISSION_DENIED:
-            locationElement.innerHTML = "User denied the request for Gelocation.";
+            //locationElement.innerHTML = "User denied the request for Gelocation.";
             break;
           case error.POSITION_UNAVAILABLE:
-            locationElement.innerHTML = "Location information is unavailable.";
+            //locationElement.innerHTML = "Location information is unavailable.";
             break;
           case error.TIMEOUT:
-            locationElement.innerHTML = "The request to get the user location timed out.";
+            //locationElement.innerHTML = "The request to get the user location timed out.";
             break;
           case error.UNKNOWN_ERROR:
-            locationElement.innerHTML = "An unknown error occurred.";
+            //locationElement.innerHTML = "An unknown error occurred.";
             break;
         }
       }
     );
   }else{
-    locationElement.innerHTML = "Geolocation is not supported by this browser.";
+    //locationElement.innerHTML = "Geolocation is not supported by this browser.";
   }
 }
 

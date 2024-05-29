@@ -221,9 +221,16 @@ Your jitter was $jitter ms
 
 &lt;&lt;link &quot;Get My Location&quot;&gt;&gt;
 	&lt;&lt;script&gt;&gt;
+    	// Display loading message
+        State.variables.loadingMessage = &quot;Loading...&quot;;
+        // Call function
     	window.story.getLocationAndSave();
     &lt;&lt;/script&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="LocationDisplay" tags="" position="1850,900" size="100,100">&lt;&lt;set $lat = State.variables.latitude&gt;&gt;
+&lt;&lt;/link&gt;&gt;
+
+&lt;&lt;if State.variables.loadingMessage&gt;&gt;
+	&lt;p&gt;&lt;State.variable.loadingMessage&gt;&lt;/p&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="LocationDisplay" tags="" position="1850,900" size="100,100">&lt;&lt;set $lat = State.variables.latitude&gt;&gt;
 &lt;&lt;set $long = State.variables.longitude&gt;&gt;
 
 Your coordinates are $lat, $long

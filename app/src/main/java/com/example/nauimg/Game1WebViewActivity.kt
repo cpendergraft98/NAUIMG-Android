@@ -25,7 +25,7 @@ class Game1WebViewActivity : AppCompatActivity() {
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
 
-        webView.loadUrl("file:///android_asset/LiveDataTest-SC.html")
+        webView.loadUrl("file:///android_asset/Game1.html")
     }
 
     fun btnReturnHandler(view: View){

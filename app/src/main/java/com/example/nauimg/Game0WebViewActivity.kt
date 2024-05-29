@@ -34,7 +34,7 @@ class Game0WebViewActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = WebViewClient()
-        webView.loadUrl("file:///android_asset/GeolocationTest.html")
+        webView.loadUrl("file:///android_asset/${Constants.filename}")
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

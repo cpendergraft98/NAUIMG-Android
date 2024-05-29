@@ -20,6 +20,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Instead of having multiple webView activities, can I dynamically load a different game in one
+    // webview? Have them select what game they want to play from a dropdown, press a single button to launch it
+    // and have that filename passed into the Webview activity? Use the constants.kt file?
+
     fun btnGame0Handler(view: View){
         val intent = Intent(this, Game0WebViewActivity::class.java)
         startActivity(intent)

@@ -14,7 +14,6 @@ import android.content.Intent
 import android.view.View
 
 class Game0WebViewActivity : AppCompatActivity() {
-    private val PERMISSIONS_REQUEST_LOCATION = 100
     private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,10 +38,14 @@ class Game0WebViewActivity : AppCompatActivity() {
 
         webView.webViewClient = WebViewClient()
         webView.loadUrl("file:///android_asset/GeolocationTest.html")
+    }
 
-        // Request location permissions if not already granted
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == Constants.PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                webView.reload()
+            }
         }
     }
 

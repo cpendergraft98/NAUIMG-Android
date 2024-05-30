@@ -33,8 +33,11 @@ class Game0WebViewActivity : AppCompatActivity() {
             }
         }
 
-        webView.webViewClient = WebViewClient()
-        webView.loadUrl("file:///android_asset/${Constants.filename}")
+        val filename = intent.getStringExtra("FILENAME")
+        if (filename != null) {
+            webView.webViewClient = WebViewClient()
+            webView.loadUrl("file:///android_asset/$filename")
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

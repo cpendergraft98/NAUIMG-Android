@@ -3,9 +3,9 @@ package com.example.nauimg
 import android.Manifest
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import android.content.Intent;
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.view.View;
+import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.Spinner
@@ -44,9 +44,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        launchButton.setOnClickListener() {
+        launchButton.setOnClickListener {
             selectedGame?.let {
-                val intent = Intent(this, Game0WebViewActivity::class.java).apply{
+                val intent = Intent(this, WebViewActivity::class.java).apply{
                     putExtra("FILENAME", it)
                 }
                 startActivity(intent)
@@ -56,21 +56,4 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Constants.PERMISSIONS_REQUEST_LOCATION)
         }
     }
-
-    /*
-    fun btnGame0Handler(view: View){
-        val intent = Intent(this, Game0WebViewActivity::class.java)
-        startActivity(intent)
-    }
-
-    fun btnGame1Handler(view: View){
-        val intent = Intent(this, Game1WebViewActivity::class.java)
-        startActivity(intent)
-    }
-
-    fun btnGame2Handler(view: View){
-        val intent = Intent(this, Game2WebViewActivity::class.java)
-        startActivity(intent)
-    }
-    */
 }

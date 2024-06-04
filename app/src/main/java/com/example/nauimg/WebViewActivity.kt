@@ -1,21 +1,22 @@
 package com.example.nauimg
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.webkit.GeolocationPermissions
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import android.content.Intent
-import android.view.View
 
-class Game0WebViewActivity : AppCompatActivity() {
+class WebViewActivity : AppCompatActivity() {
     private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game0_web_view)
+        setContentView(R.layout.activity_web_view)
 
         webView = findViewById(R.id.webView)
 
@@ -38,6 +39,9 @@ class Game0WebViewActivity : AppCompatActivity() {
             webView.webViewClient = WebViewClient()
             webView.loadUrl("file:///android_asset/$filename")
         }
+
+        // Inject the interface into WebView
+        webView.addJavascriptInterface(this, "AndroidBridge")
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -53,4 +57,15 @@ class Game0WebViewActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
+
+    @JavascriptInterface
+    fun getRandomNumber(): Int{
+        return (1..100).random()
+    }
+}
+
+// Define the WebAppInterface
+interface WebAppInterface {
+    @JavascriptInterface
+    fun getRandomNumber(): Int
 }

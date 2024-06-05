@@ -10,6 +10,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import java.util.Random
 
 class WebViewActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -59,13 +60,27 @@ class WebViewActivity : AppCompatActivity() {
     }
 
     @JavascriptInterface
-    fun getRandomNumber(): Int{
-        return (1..100).random()
+    fun generateMetrics(): String{
+        val random = Random()
+        // This is the weirdest methodology for establishing a range of values to generate
+        // a random number within that I have ever seen, but apparently this is how random.nextInt()
+        // works??
+        val uploadSpeed = random.nextInt((100 - 1) + 1) + 1 //Mbs
+        val downloadSpeed = random.nextInt((100 - 1) + 1) + 1 //Mbs
+        val jitter = random.nextInt((50 - 1) + 1) + 1 //ms
+        val packetLoss = random.nextInt(100) //%
+        val latency = random.nextInt((100 - 1) + 1) + 1 //ms
+
+        return "Upload Speed = $uploadSpeed Mbs \n" +
+                "Download Speed = $downloadSpeed Mbs \n" +
+                "Jitter = $jitter ms \n" +
+                "Packet Loss = $packetLoss % \n" +
+                "Latency = $latency ms "
     }
 }
 
 // Define the WebAppInterface
 interface WebAppInterface {
     @JavascriptInterface
-    fun getRandomNumber(): Int
+    fun generateMetrics(): String
 }

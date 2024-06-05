@@ -99,38 +99,32 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
 	<tw-storydata name="BridgeTest" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="249FA5BB-CC6D-4EC7-9574-01E3F7C1AD0F" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">/*
-// Define a function to periodically check if displayRandomNumber is defined
-function checkFunctionDefined() {
-    if (typeof displayRandomNumber === 'function') {
-        clearInterval(checkInterval);
-        displayRandomNumber();
-    }
+var downloadSpeed, uploadSpeed, jitter, packetLoss, latency
+
+function assignRandomNumbers(downloadSpeedWV, uploadSpeedWV, jitterWV, packetLossWV, latencyWV){
+  downloadSpeed = downloadSpeedWV;
+  uploadSpeed = uploadSpeedWV;
+  jitter = jitterWV;
+  packetLoss = packetLossWV;
+  latency = latencyWV;
 }
-
-// Call checkFunctionDefined every 100 milliseconds
-var checkInterval = setInterval(checkFunctionDefined, 100);
-
-// Define a function to display the random number
-function displayRandomNumber() {
-    var randomNumber = AndroidBridge.getRandomNumber();
-    // Display the random number as desired, e.g., in an alert or on the page
-    alert("Random Number: " + randomNumber);
-}
-
-// Add an event listener to the link to trigger displayRandomNumber on click
-document.addEventListener('DOMContentLoaded', function() {
-    var generateNumberLink = document.getElementById('generateNumberLink');
-    generateNumberLink.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default link behavior
-        displayRandomNumber();
-    });
-});
+                             
+window.assignRandomNumbersFromWebView = function(downloadSpeedWV, uploadSpeedWV, jitterWV, packetLossWV, latencyWV){
+  assignRandomNumbers(downloadSpeedWV, uploadSpeedWV, jitterWV, packetLossWV, latencyWV);
+  
+  alert("Upload Speed: " + uploadSpeed + "Mbs \n" +
+        "Download Speed: " + downloadSpeed + "Mbs \n" +
+        "Jitter: " + jitter + "ms \n" +
+        "Packet Loss: " + packetLoss + "% \n" +
+        "Latency: " + latency + "ms");
+};
 */
-
+  
 window.displayRandomNumber = function() {
-  var randomNumber = AndroidBridge.getRandomNumber();
-  alert("random Number " + randomNumber);
-};</script><tw-passagedata pid="1" name="Start" tags="" position="800,575" size="100,100">[[Go to the random number generator|RNG]]</tw-passagedata><tw-passagedata pid="2" name="RNG" tags="" position="800,700" size="100,100">&lt;&lt;link &quot;Generate Random Number&quot;&gt;&gt;
+  var metrics = AndroidBridge.getRandomNumber();
+  alert(metrics);
+};
+</script><tw-passagedata pid="1" name="Start" tags="" position="800,575" size="100,100">[[Go to the random number generator|RNG]]</tw-passagedata><tw-passagedata pid="2" name="RNG" tags="" position="800,700" size="100,100">&lt;&lt;link &quot;Generate Random Number&quot;&gt;&gt;
     &lt;&lt;run displayRandomNumber()&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">

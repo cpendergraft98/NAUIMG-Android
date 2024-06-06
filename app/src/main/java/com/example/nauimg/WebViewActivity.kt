@@ -10,6 +10,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import org.json.JSONObject
 import java.util.Random
 
 class WebViewActivity : AppCompatActivity() {
@@ -62,20 +63,21 @@ class WebViewActivity : AppCompatActivity() {
     @JavascriptInterface
     fun generateMetrics(): String{
         val random = Random()
-        // This is the weirdest methodology for establishing a range of values to generate
-        // a random number within that I have ever seen, but apparently this is how random.nextInt()
-        // works??
+
         val uploadSpeed = random.nextInt((100 - 1) + 1) + 1 //Mbs
         val downloadSpeed = random.nextInt((100 - 1) + 1) + 1 //Mbs
         val jitter = random.nextInt((50 - 1) + 1) + 1 //ms
         val packetLoss = random.nextInt(100) //%
         val latency = random.nextInt((100 - 1) + 1) + 1 //ms
 
-        return "Upload Speed = $uploadSpeed Mbs \n" +
-                "Download Speed = $downloadSpeed Mbs \n" +
-                "Jitter = $jitter ms \n" +
-                "Packet Loss = $packetLoss % \n" +
-                "Latency = $latency ms "
+        val metricJSON = JSONObject()
+        metricJSON.put("uploadSpeed", uploadSpeed)
+        metricJSON.put("downloadSpeed", downloadSpeed)
+        metricJSON.put("jitter", jitter)
+        metricJSON.put("packetLoss", packetLoss)
+        metricJSON.put("latency", latency)
+
+        return metricJSON.toString()
     }
 }
 

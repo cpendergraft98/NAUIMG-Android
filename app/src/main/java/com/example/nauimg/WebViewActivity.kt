@@ -55,6 +55,8 @@ class WebViewActivity : AppCompatActivity() {
         }
     }
 
+    // Ignore warning that view is not used, btnReturnHandler does not work without it and I do not
+    // know why
     fun btnReturnHandler(view: View){
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
@@ -79,10 +81,4 @@ class WebViewActivity : AppCompatActivity() {
 
         return metricJSON.toString()
     }
-}
-
-// Define the WebAppInterface
-interface WebAppInterface {
-    @JavascriptInterface
-    fun generateMetrics(): String
 }

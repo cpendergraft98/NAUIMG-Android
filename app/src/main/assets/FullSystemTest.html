@@ -98,29 +98,40 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="FullSystemTest" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="08F6B103-6F3A-4267-B0C4-291796F0494A" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to grab and display internet metrics produced in Android backend.
+	<tw-storydata name="FullSystemTest" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="08F6B103-6F3A-4267-B0C4-291796F0494A" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to grab internet metrics produced in Android backend.
 window.displayMetrics = function() {
+  
+  // Grab JSON string via the AndroidBridge
   var metricsString = AndroidBridge.generateMetrics();
   
   // Parse the JSON string into a JavaScript object
   var metricsObject = JSON.parse(metricsString)
   
+  // Store data in state variables
   State.variables.uploadSpeed = metricsObject.uploadSpeed;
   State.variables.downloadSpeed = metricsObject.downloadSpeed;
   State.variables.jitter = metricsObject.jitter;
   State.variables.packetLoss = metricsObject.packetLoss;
   State.variables.latency = metricsObject.latency;
   
+  // Alert for debugging.
   alert("Upload Speed: " + State.variables.uploadSpeed + " Mbs\n" + "Download Speed: " + State.variables.downloadSpeed + " Mbs\n" + "Jitter: " + State.variables.jitter + " ms\n" + "Packet Loss: " + State.variables.packetLoss + "%\n" + "Latency: " + State.variables.latency + " ms");
 };
 
-// Function to grab and display the location data collected in Android backend
+// Function to grab location data collected in Android backend
 window.displayLocation = function() {
+  
+  // Grab JSON string via the AndroidBridge
   var locationData = AndroidBridge.getLocationJSON();
+  
+  // Parse the JSON string into a JavaScript object
   var location = JSON.parse(locationData);
   
+  // Store data in state variables
   State.variables.latitude = location.latitude;
   State.variables.longitude = location.longitude;
+  
+  // Alert for debugging.
   alert("Latitude: " + State.variables.latitude + "," + " Longitude: " + State.variables.longitude);
 };</script><tw-passagedata pid="1" name="Start" tags="" position="800,575" size="100,100">This is a test of the Geolocation system and the Android-Twine bridge for the NAU Internet Measurement Games.
 

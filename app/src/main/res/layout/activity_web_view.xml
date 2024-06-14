@@ -5,14 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <Button
-        android:id="@+id/btnReturn"
+        android:id="@+id/returnButton"
         android:text="Return"
-        android:onClick="btnReturnHandler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <WebView
         android:id="@+id/webView"
-        android:layout_below="@id/btnReturn"
+        android:layout_below="@id/returnButton"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 </RelativeLayout>

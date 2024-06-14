@@ -113,51 +113,20 @@ window.displayMetrics = function() {
   
   alert("Upload Speed: " + State.variables.uploadSpeed + " Mbs\n" + "Download Speed: " + State.variables.downloadSpeed + " Mbs\n" + "Jitter: " + State.variables.jitter + " ms\n" + "Packet Loss: " + State.variables.packetLoss + "%\n" + "Latency: " + State.variables.latency + " ms");
 };
+
+// Function to grab and display the location data collected in Android backend
+window.displayLocation = function() {
+  var locationData = AndroidBridge.getLocationJSON();
+  var location = JSON.parse(locationData);
   
-// Function to get the user's location and save latitude and longitude
-window.getLocationAndSave = function() {
-    // Check if Geolocation is supported by the browser
-    if (navigator.geolocation) {
-        // Get the current position
-        navigator.geolocation.getCurrentPosition(
-            // Success callback
-            function (position) {
-                // Save latitude and longitude to Twine variables
-                State.variables.latitude = position.coords.latitude;
-                State.variables.longitude = position.coords.longitude;
-              	alert("Latitude: " + State.variables.latitude + "," + " Lognitude: " + State.variables.longitude);
-            },
-            // Error callback
-            function (error) {
-                let errorMessage = '';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = "User denied the request for Geolocation.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = "Location information is unavailable.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = "The request to get user location timed out.";
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        errorMessage = "An unknown error occurred.";
-                        break;
-                }
-                // Display the error message
-                State.variables.locationErrorMessage = errorMessage;
-                Engine.play("LocationError"); // Transition to an error passage
-            }
-        );
-    } else {
-        State.variables.locationErrorMessage = "Geolocation is not supported by this browser.";
-        Engine.play("LocationError"); // Transition to an error passage
-    }
+  State.variables.latitude = location.latitude;
+  State.variables.longitude = location.longitude;
+  alert("Latitude: " + State.variables.latitude + "," + " Longitude: " + State.variables.longitude);
 };</script><tw-passagedata pid="1" name="Start" tags="" position="800,575" size="100,100">This is a test of the Geolocation system and the Android-Twine bridge for the NAU Internet Measurement Games.
 
 [[Proceed to Geolocation Test|GeolocationTest]]
 [[Proceed to Communication Bridge Test|BridgeTest]]</tw-passagedata><tw-passagedata pid="2" name="GeolocationTest" tags="" position="650,725" size="100,100">&lt;&lt;link &quot;Display Geolocation Information&quot;&gt;&gt;
-    &lt;&lt;run getLocationAndSave()&gt;&gt;
+    &lt;&lt;run displayLocation()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
 [[Jump to the Gelocation Variable Storage Test|GeolocationStorage]]

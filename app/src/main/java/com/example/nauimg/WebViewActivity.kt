@@ -12,15 +12,50 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import java.util.Random
+import com.google.android.gms.location.*
+import android.location.Location
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.Manifest
+import android.util.Log
+import com.google.android.gms.location.Priority
+import com.google.android.gms.location.LocationRequest
 
 class WebViewActivity : AppCompatActivity() {
     private lateinit var webView: WebView
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+    private var latestLocation: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
         webView = findViewById(R.id.webView)
+
+        // Initialize Location Client
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        // Create location request
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).apply{
+            setMinUpdateIntervalMillis(5000)
+            setMaxUpdateDelayMillis(5000)
+        }.build()
+
+        locationCallback = object: LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+                latestLocation = locationResult.lastLocation
+            }
+        }
+
+        // Check for location permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Constants.PERMISSIONS_REQUEST_LOCATION)
+        } else {
+            startLocationUpdates()
+        }
 
         val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
@@ -31,7 +66,8 @@ class WebViewActivity : AppCompatActivity() {
         webSettings.useWideViewPort = true
 
         webView.webChromeClient = object : WebChromeClient() {
-            override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback){
+            override fun onGeolocationPermissionsShowPrompt(
+                origin: String, callback: GeolocationPermissions.Callback){
                 callback.invoke(origin, true, false)
             }
         }
@@ -46,12 +82,37 @@ class WebViewActivity : AppCompatActivity() {
         webView.addJavascriptInterface(this, "AndroidBridge")
     }
 
+    private fun startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, ContextCompat.getMainExecutor(this), locationCallback)
+        } else {
+            Log.e("WebViewActivity", "Location permission not granted.")
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Constants.PERMISSIONS_REQUEST_LOCATION)
+        }
+    }
+
+    private fun stopLocationUpdates(){
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == Constants.PERMISSIONS_REQUEST_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                webView.reload()
+                startLocationUpdates()
             }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates()
         }
     }
 
@@ -80,5 +141,18 @@ class WebViewActivity : AppCompatActivity() {
         metricJSON.put("latency", latency)
 
         return metricJSON.toString()
+    }
+
+    @JavascriptInterface
+    fun getLocationJSON(): String {
+        val locationJSON = JSONObject()
+        latestLocation?.let {
+            locationJSON.put("latitude", it.latitude)
+            locationJSON.put("longitude", it.longitude)
+        } ?: run {
+            locationJSON.put("latitude", null)
+            locationJSON.put("longitude", null)
+        }
+        return locationJSON.toString()
     }
 }

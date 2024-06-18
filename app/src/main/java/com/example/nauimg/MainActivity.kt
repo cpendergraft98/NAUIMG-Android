@@ -51,12 +51,17 @@ class MainActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         gameSpinner.adapter = adapter
 
+        // Set an item selected listener for the gameSpinner spinner.
         gameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            // This method is called when an item in the spinner is selected.
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // Update the selectedGame LiveData in the viewModel with the selected item's value.
                 viewModel.selectedGame.value = parent.getItemAtPosition(position) as String
             }
 
+            // This method is called when no item is selected in the spinner.
             override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Set the selectedGame LiveData in the viewModel to null when no item is selected.
                 viewModel.selectedGame.value = null
             }
         }
@@ -71,9 +76,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.selectedGame.observe(this) { game : String? ->
+        // Observe changes in the selectedGame LiveData in the viewModel.
+        viewModel.selectedGame.observe(this) { game: String? ->
+            // Find the position of the selected game in the games list.
             val position = games.indexOf(game)
+
+            // Check if the game is found in the list.
             if (position >= 0) {
+                // Set the selection of the gameSpinner to the position of the selected game.
                 gameSpinner.setSelection(position)
             }
         }

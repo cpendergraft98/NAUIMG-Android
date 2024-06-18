@@ -37,6 +37,7 @@ class WebViewActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
+        webSettings.mediaPlaybackRequiresUserGesture = false
 
         // Set WebChromeClient for handling geolocation permissions
         webView.webChromeClient = object : WebChromeClient() {

@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     // Initialize variables
     private lateinit var gameSpinner: Spinner
     private lateinit var launchButton: Button
-    private var selectedGame: String? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
@@ -64,10 +63,9 @@ class MainActivity : AppCompatActivity() {
 
         // Set click listener for launch button
         launchButton.setOnClickListener {
-            selectedGame?.let {
-                // Create intent to start WebViewActivity with selected game file
+            viewModel.selectedGame.value?.let { game ->
                 val intent = Intent(this, WebViewActivity::class.java).apply {
-                    putExtra("FILENAME", it)
+                    putExtra("FILENAME", game)
                 }
                 startActivity(intent)
             }

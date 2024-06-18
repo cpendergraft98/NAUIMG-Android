@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import android.widget.ArrayAdapter
 import android.location.Location
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 
 // MainActivity class extends AppCompatActivity
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
+    private lateinit var viewModel: MainViewModel
 
     companion object {
         var latestLocation: Location? = null
@@ -39,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         gameSpinner = findViewById(R.id.gameSpinner)
         launchButton = findViewById(R.id.launchButton)
 
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
         // Load HTML files from assets folder
         val assetManager = assets
         val games = assetManager.list("")?.filter { it.endsWith(".html") } ?: emptyList()
@@ -48,16 +52,13 @@ class MainActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         gameSpinner.adapter = adapter
 
-        // Set item selected listener for spinner
         gameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            // Called when item in spinner is selected
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                selectedGame = parent.getItemAtPosition(position) as String
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                viewModel.selectedGame.value = parent.getItemAtPosition(position) as String
             }
 
-            // Called when no item is selected in spinner
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                selectedGame = null
+                viewModel.selectedGame.value = null
             }
         }
 
@@ -69,6 +70,13 @@ class MainActivity : AppCompatActivity() {
                     putExtra("FILENAME", it)
                 }
                 startActivity(intent)
+            }
+        }
+
+        viewModel.selectedGame.observe(this) { game : String? ->
+            val position = games.indexOf(game)
+            if (position >= 0) {
+                gameSpinner.setSelection(position)
             }
         }
 

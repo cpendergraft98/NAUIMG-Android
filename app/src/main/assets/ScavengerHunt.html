@@ -264,17 +264,27 @@ window.grabMetrics = function() {
   // Final release will need this data to be stored and sent somewhere just like the data in the function above
   
   // Console logs for debugging
-  console.log("Upload Speed: " + State.variables.uploadSpeed + "," + " Download Speed: " + State.variables.downloadSpeed + "," + " Jitter: " + State.variables.jitter + "," + " Packet Loss: " + State.variables.packetLoss + "," + " Latency: " + State.variables.latency);
+  console.log("Upload Speed: " + State.variables.uploadSpeed + "Mbp\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + " Packet Loss: " + State.variables.packetLoss + "%," + " Latency: " + State.variables.latency + "ms");
 };
 
 // Function to display internet metrics collected at user request. Only works if grabMetrics has been run previously.
 window.displayMetrics = function() {
-  alert("Upload Speed: " + State.variables.uploadSpeed + "\n" + "Download Speed: " + State.variables.downloadSpeed + "\n" + "Jitter: " + State.variables.jitter + "\n" + "Packet Loss: " + State.variables.packetLoss + "\n" + "Latency: " + State.variables.latency);
+  alert("Upload Speed: " + State.variables.uploadSpeed + "Mbps\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + "Packet Loss: " + State.variables.packetLoss + "%\n" + "Latency: " + State.variables.latency + "ms");
 };</script><tw-passagedata pid="1" name="StoryInit" tags="" position="800,300" size="100,100">/* Score tracker */
 &lt;&lt;set $score to 0&gt;&gt;
 
 /* Various booleans to track different game elements */
 &lt;&lt;set $campusLocation_Hint1 to false&gt;&gt;
+&lt;&lt;set $campusLocation_Hint2 to false&gt;&gt;
+&lt;&lt;set $campusLocation_Hint3 to false&gt;&gt;
+
+&lt;&lt;set $urbanLocation_Hint1 to false&gt;&gt;
+&lt;&lt;set $urbanLocation_Hint2 to false&gt;&gt;
+&lt;&lt;set $urbanLocation_Hint3 to false&gt;&gt;
+
+&lt;&lt;set $ruralLocation_Hint1 to false&gt;&gt;
+&lt;&lt;set $ruralLocation_Hint2 to false&gt;&gt;
+&lt;&lt;set $ruralLocation_Hint3 to false&gt;&gt;
 
 /* Check location at start */
 &lt;&lt;run grabAndCheckLocation()&gt;&gt;
@@ -290,47 +300,105 @@ window.displayMetrics = function() {
 	&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">Urban Location
 
-Hint 1
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;
+&lt;&lt;if $urbanLocation_Hint1&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 1 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH1&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint1 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
 
-Hint 2
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;
+&lt;&lt;if $urbanLocation_Hint2&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH2&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $urbanLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
 
-Hint 3
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RuralLocation" tags="" position="1200,500" size="100,100">Rural Location
+&lt;&lt;if $urbanLocation_Hint3&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH3&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $urbanLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
 
-Hint 1
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;
+&lt;&lt;if $urbanLocation_Hint1 and $urbanLocation_Hint2 and $urbanLocation_Hint3&gt;&gt;
+	&lt;&lt;goto &quot;HintsComplete_UL&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+</tw-passagedata><tw-passagedata pid="3" name="RuralLocation" tags="" position="1200,500" size="100,100">Rural Location
 
-Hint 2
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;
+&lt;&lt;if $ruralLocation_Hint1&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 1 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH1&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint1 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
 
-Hint 3
-&lt;&lt;textbox &quot;$entry&quot; Answer&gt;&gt;
-&lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;if $entry.trim().toLowerCase() === &quot;yes&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="NoLocation" tags="" position="800,100" size="100,100">We have not detected you in any of our interest locations. Please re-check your location using the link below. If the issue persists, please ensure that you have location services enabled on your device, that you have granted the NAUIMG app access to location data, and fully shut down and restart the app.
+&lt;&lt;if $ruralLocation_Hint2&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH2&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $ruralLocation_Hint3&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH3&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $ruralLocation_Hint1 and $ruralLocation_Hint2 and $ruralLocation_Hint3&gt;&gt;
+	&lt;&lt;goto &quot;HintsComplete_RL&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+</tw-passagedata><tw-passagedata pid="4" name="NoLocation" tags="" position="800,100" size="100,100">We have not detected you in any of our interest locations. Please re-check your location using the link below. If the issue persists, please ensure that you have location services enabled on your device, that you have granted the NAUIMG app access to location data, and fully shut down and restart the app.
 
 &lt;&lt;link &quot;Check my location&quot;&gt;&gt;
 	&lt;&lt;run grabAndCheckLocation()&gt;&gt;
@@ -350,7 +418,7 @@ Hint 3
 &lt;&lt;if $campusLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;The acronym of the name directly across from SICCS.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The acronym of the building directly across from SICCS.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH1&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_CLH1.trim().toLowerCase() == &quot;isb&quot;&gt;&gt;
@@ -360,7 +428,43 @@ Hint 3
         	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
         &lt;&lt;/if&gt;&gt;
     &lt;&lt;/button&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="IncorrectResponse_CL" tags="" position="500,700" size="100,100">Sorry, that wasn&#39;t quite right! Please try again!
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint2&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH2&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_CLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint3&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH3&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_CLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3&gt;&gt;
+	&lt;&lt;goto &quot;HintsComplete_CL&quot;&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+</tw-passagedata><tw-passagedata pid="6" name="IncorrectResponse_CL" tags="" position="500,700" size="100,100">Sorry, that wasn&#39;t quite right! Please try again!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;

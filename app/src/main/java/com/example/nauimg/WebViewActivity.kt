@@ -3,13 +3,10 @@ package com.example.nauimg
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.GeolocationPermissions
-import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import org.json.JSONObject
-import java.util.Random
 import android.widget.Button
 import android.annotation.SuppressLint
 
@@ -54,7 +51,7 @@ class WebViewActivity : AppCompatActivity() {
         }
 
         // Inject Javascript interfaces into WebView
-        webView.addJavascriptInterface(this, "AndroidBridge")
+        webView.addJavascriptInterface(WebAppInterface(this), "AndroidBridge")
 
         // Set click listener for return button
         returnButton.setOnClickListener {
@@ -62,40 +59,5 @@ class WebViewActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    // Generate random metrics and return as JSON string
-    @JavascriptInterface
-    fun generateMetrics(): String {
-        val random = Random()
-
-        val uploadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
-        val downloadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
-        val jitter = random.nextInt((50 - 1) + 1) + 1 // ms
-        val packetLoss = random.nextInt(100) // %
-        val latency = random.nextInt((100 - 1) + 1) + 1 // ms
-
-        val metricJSON = JSONObject()
-        metricJSON.put("uploadSpeed", uploadSpeed)
-        metricJSON.put("downloadSpeed", downloadSpeed)
-        metricJSON.put("jitter", jitter)
-        metricJSON.put("packetLoss", packetLoss)
-        metricJSON.put("latency", latency)
-
-        return metricJSON.toString()
-    }
-
-    // Get latest location and return as JSON string
-    @JavascriptInterface
-    fun getLocationJSON(): String {
-        val locationJSON = JSONObject()
-        MainActivity.latestLocation?.let {
-            locationJSON.put("latitude", it.latitude)
-            locationJSON.put("longitude", it.longitude)
-        } ?: run {
-            locationJSON.put("latitude", null)
-            locationJSON.put("longitude", null)
-        }
-        return locationJSON.toString()
     }
 }

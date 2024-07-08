@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.icu.util.Calendar
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
@@ -16,6 +17,8 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
+import org.json.JSONObject
+import android.provider.Settings
 
 // MainActivity class extends AppCompatActivity
 class MainActivity : AppCompatActivity() {
@@ -29,12 +32,19 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         var latestLocation: Location? = null
+        // Can make this a JSONObject once we are set up with the server
+        val locationData = JSONObject() // Initialize JSON array
     }
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Store Android ID for research purposes
+        // Generating an ID serverside may be better...
+        // This will work for now, ignore warning
+        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         // Find views by their IDs
         gameSpinner = findViewById(R.id.gameSpinner)
@@ -103,12 +113,36 @@ class MainActivity : AppCompatActivity() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 latestLocation = locationResult.lastLocation
+
+                // Append location data to JSON array
+                latestLocation?.let { location ->
+                    // Update a JSON object with the necessary data
+                    locationData.apply {
+                        val currentDate = Calendar.getInstance().time
+                        put("datetime", currentDate)
+                        put("latitude", location.latitude)
+                        put("longitude", location.longitude)
+                        // Following identifiers used serverside to determine whether the data was
+                        // sent from Android or HTML/JS and which user it pertains to
+                        put("origin", "android")
+                        put("androidId", androidId)
+                        //put("userID", getUserID()) // in case we do serverside identifiers
+                    }
+                }
+                //sendDataToServer(locationData)
+                Log.d("MainActivity", locationData.toString(4))
             }
         }
-
         // Check if location permission is granted, if not request permission
         checkLocationPermission()
     }
+
+    /*
+    // Function to send a JSON object to the study server
+    fun sendDataToServer(locationData : JSONObject){
+
+    }
+    */
 
     // Method to check location permission
     private fun checkLocationPermission() {

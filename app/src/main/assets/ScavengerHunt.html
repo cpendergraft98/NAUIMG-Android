@@ -102,6 +102,8 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
     // Calculate side length using the area of a regular hexagon
     const radius = Math.sqrt((2 * area) / (3 * Math.sqrt(3)));
+    
+  	//Log the radius to the console for debugging
     console.log("Radius = ", radius);
 
     // Calculate angles for each vertex (in radians)
@@ -121,7 +123,7 @@ function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
         return { latitude, longitude };
     });
 
-    // Log the vertices to the console with numerical values
+    // Log the vertices to the console with numerical values for debugging
     vertices.forEach((vertex, index) => {
         console.log(`Vertex ${index + 1}: Latitude ${vertex.latitude}, Longitude ${vertex.longitude}`);
     });
@@ -156,13 +158,6 @@ function isPointInsideHexagon(pointLatitude, pointLongitude, vertices) {
   // Return location status
   return inside;
 }
-
-//Function to send a JSON object to the study server
-/*
-function sendDataToServer(JSONobject){
-  
-}
-*/
 
 // 0.7km^2 hexagonal plane defined just outside of SICCS (Campus)
 let campusSpace = [];
@@ -223,8 +218,6 @@ window.grabAndCheckLocation = function() {
   checkData["origin"] = "twine";
   checkData["androidId"] = location.androidId;
   
-  //sendDataToServer(checkData);
-  
   // Store data in state variables
   State.variables.userLat = location.latitude;
   State.variables.userLon = location.longitude;
@@ -232,17 +225,19 @@ window.grabAndCheckLocation = function() {
   State.variables.insideUrban = insideUrban;
   State.variables.insideRural = insideRural;
   
-  // Console logs for debugging
+  // Log location details to console for debugging
   console.log("User latitude: " + location.longitude + "," + " User longitude: " + location.longitude);
   console.log("User in Campus Hexagon: " + insideCampus);
   console.log("User in Urban Hexagon: " + insideUrban);
   console.log("User in Rural Hexagon: " + insideRural);
-  console.log("JSON Date: ", checkData.datetime);
-  console.log("JSON Lat: ", checkData.userLatitude);
-  console.log("JSON Lon: ", checkData.userLongitude);
-  console.log("JSON Hexagon: ", checkData.hexagon);
-  console.log("JSON Origin: ", checkData.origin);
-  console.log("JSON AndroidID: ", checkData.androidId);
+  
+  // Log the data stored in the JSON to console to ensure it is being generated properly
+  //console.log("JSON Date: ", checkData.datetime);
+  //console.log("JSON Lat: ", checkData.userLatitude);
+  //console.log("JSON Lon: ", checkData.userLongitude);
+  //console.log("JSON Hexagon: ", checkData.hexagon);
+  //console.log("JSON Origin: ", checkData.origin);
+  //console.log("JSON AndroidID: ", checkData.androidId);
 };
 
 // Function to grab internet metrics produced in Android backend.
@@ -263,30 +258,16 @@ window.grabMetrics = function() {
   
   // Final release will need this data to be stored and sent somewhere just like the data in the function above
   
-  // Console logs for debugging
-  console.log("Upload Speed: " + State.variables.uploadSpeed + "Mbp\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + " Packet Loss: " + State.variables.packetLoss + "%," + " Latency: " + State.variables.latency + "ms");
+  // Log the metric outputs to the console for debugging
+  //console.log("Upload Speed: " + State.variables.uploadSpeed + "Mbp\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + " Packet Loss: " + State.variables.packetLoss + "%," + " Latency: " + State.variables.latency + "ms");
 };
 
 // Function to display internet metrics collected at user request. Only works if grabMetrics has been run previously.
 window.displayMetrics = function() {
+  
+  // Display the measurement values to the user
   alert("Upload Speed: " + State.variables.uploadSpeed + "Mbps\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + "Packet Loss: " + State.variables.packetLoss + "%\n" + "Latency: " + State.variables.latency + "ms");
-};</script><tw-passagedata pid="1" name="StoryInit" tags="" position="800,300" size="100,100">/* Score tracker */
-&lt;&lt;set $score to 0&gt;&gt;
-
-/* Various booleans to track different game elements */
-&lt;&lt;set $campusLocation_Hint1 to false&gt;&gt;
-&lt;&lt;set $campusLocation_Hint2 to false&gt;&gt;
-&lt;&lt;set $campusLocation_Hint3 to false&gt;&gt;
-
-&lt;&lt;set $urbanLocation_Hint1 to false&gt;&gt;
-&lt;&lt;set $urbanLocation_Hint2 to false&gt;&gt;
-&lt;&lt;set $urbanLocation_Hint3 to false&gt;&gt;
-
-&lt;&lt;set $ruralLocation_Hint1 to false&gt;&gt;
-&lt;&lt;set $ruralLocation_Hint2 to false&gt;&gt;
-&lt;&lt;set $ruralLocation_Hint3 to false&gt;&gt;
-
-/* Check location at start */
+};</script><tw-passagedata pid="1" name="StoryInit" tags="" position="800,300" size="100,100">/* Check location at start */
 &lt;&lt;run grabAndCheckLocation()&gt;&gt;
 
 /* Determine where to send user based on location */
@@ -298,7 +279,10 @@ window.displayMetrics = function() {
 	&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
 	&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">Urban Location
+&lt;&lt;/if&gt;&gt;
+
+/* Score tracker */
+&lt;&lt;set $score to 0&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">Urban Location
 
 &lt;&lt;if $urbanLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;

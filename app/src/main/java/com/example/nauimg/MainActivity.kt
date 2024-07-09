@@ -25,16 +25,7 @@ class MainActivity : AppCompatActivity() {
     // Initialize variables
     private lateinit var gameSpinner: Spinner
     private lateinit var launchButton: Button
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
     private lateinit var viewModel: MainViewModel
-
-    companion object {
-        var latestLocation: Location? = null
-        // Can make this a JSONObject once we are set up with the server
-        val locationData = JSONObject() // Initialize JSON array
-    }
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,100 +89,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Initialize the location client
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        // Create a location request
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).apply {
-            setMinUpdateIntervalMillis(1000)
-            setMaxUpdateDelayMillis(1000)
-        }.build()
-
-        // Define the location callback
-        locationCallback = object : LocationCallback() {
-            // Called when a new location update is received
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                latestLocation = locationResult.lastLocation
-
-                // Append location data to JSON array
-                latestLocation?.let { location ->
-                    // Update a JSON object with the necessary data
-                    locationData.apply {
-                        val currentDate = Calendar.getInstance().time
-                        put("datetime", currentDate)
-                        put("latitude", location.latitude)
-                        put("longitude", location.longitude)
-                        // Following identifiers used serverside to determine whether the data was
-                        // sent from Android or HTML/JS and which user it pertains to
-                        put("origin", "android")
-                        put("androidId", androidId)
-                        //put("userID", getUserID()) // in case we do serverside identifiers
-                    }
-                }
-                //sendDataToServer(locationData)
-                Log.d("MainActivity", locationData.toString(4))
-            }
-        }
         // Check if location permission is granted, if not request permission
         checkLocationPermission()
     }
 
-    /*
-    // Function to send a JSON object to the study server
-    fun sendDataToServer(locationData : JSONObject){
-
-    }
-    */
-
-    // Method to check location permission
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Request location permission if not granted
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), Constants.PERMISSIONS_REQUEST_LOCATION)
         } else {
-            // Start location updates if permission is already granted
-            startLocationUpdates()
+            // Start the LocationService if permission is already granted
+            startLocationService()
         }
     }
 
-    // Handle the result of the permission request
+    private fun startLocationService() {
+        Log.d("MainActivity", "Starting LocationService...")
+        val serviceIntent = Intent(this, LocationService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == Constants.PERMISSIONS_REQUEST_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, start location updates
-                startLocationUpdates()
+                // Permission granted, start the LocationService
+                Log.d("MainActivity", "Permission granted, starting LocationService...")
+                startLocationService()
             } else {
                 // Permission denied, handle appropriately
                 Log.e("MainActivity", "Location permission not granted.")
             }
-        }
-    }
-
-    // Start location updates if permission is granted
-    private fun startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, mainLooper)
-        }
-    }
-
-    // Stop location updates
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    // Stop location updates when activity is paused
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
-
-    // Resume location updates when activity is resumed
-    override fun onResume() {
-        super.onResume()
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            startLocationUpdates()
         }
     }
 }

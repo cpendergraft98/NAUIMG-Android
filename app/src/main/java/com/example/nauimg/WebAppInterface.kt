@@ -32,7 +32,7 @@ class WebAppInterface(private val context: Context) {
     @JavascriptInterface
     fun getLocationJSON(): String {
         // Return the current state of the JSON array as a formatted string
-        return MainActivity.locationData.toString(4)
+        return LocationService.locationData.toString(4)
     }
 
 }

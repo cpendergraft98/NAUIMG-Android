@@ -191,22 +191,54 @@ window.grabAndCheckLocation = function() {
   insideUrban = isPointInsideHexagon(location.latitude, location.longitude, urbanSpace);
   insideRural = isPointInsideHexagon(location.latitude, location.longitude, ruralSpace);
   
-  // Create an empty JSON object to be sent to NAU Servers
-  let checkData = new Object();
+  // Store data in state variables
+  State.variables.insideCampus = insideCampus;
+  State.variables.insideUrban = insideUrban;
+  State.variables.insideRural = insideRural;
+  
+  // Log location details to console for debugging
+  console.log("User in Campus Hexagon: " + insideCampus);
+  console.log("User in Urban Hexagon: " + insideUrban);
+  console.log("User in Rural Hexagon: " + insideRural);
+};
+
+// Function to grab internet metrics produced in Android backend.
+window.grabMetricsAndWriteData = function() {
+  
+  // Grab JSON string via the AndroidBridge
+  var metricsString = AndroidBridge.generateMetrics();
+  var locationData = AndroidBridge.getLocationJSON();
+  
+  // Parse the JSON string into a JavaScript object
+  var metricsObject = JSON.parse(metricsString);
+  var location = JSON.parse(locationData);
+  
+  // Store data in state variables
+  State.variables.uploadSpeed = metricsObject.uploadSpeed;
+  State.variables.downloadSpeed = metricsObject.downloadSpeed;
+  State.variables.jitter = metricsObject.jitter;
+  State.variables.packetLoss = metricsObject.packetLoss;
+  State.variables.latency = metricsObject.latency;
+  
+  // Create an empty JSON object to be writted to a JSON array on the user device
+  let checkData = {};
+  
+  // Can also write metric data to this JSON later
   
   // Add Date, time, and user location data to checkData JSON
+  checkData["playerName"] = State.variables.playerName;
   checkData["datetime"] = new Date();
   checkData["userLatitude"] = location.latitude;
   checkData["userLongitude"] = location.longitude; 
   
   // Check which location the user is in to determine what hexagon data to add to checkData JSON
-  if(insideCampus){
+  if(State.variables.insideCampus){
     checkData["hexagon"] = "User in campus hexagon";
     //checkData["distanceFromHexCenter"] = 
-  } else if (insideUrban) {
+  } else if (State.variables.insideUrban) {
     checkData["hexagon"] = "User in urban hexagon";
     //checkData["distanceFromHexCenter"] =
-  } else if (insideRural) {
+  } else if (State.variables.insideRural) {
     checkData["hexagon"] = "User in rural hexagon";
     //checkData["distanceFromHexCenter"] = 
   } else {
@@ -218,48 +250,24 @@ window.grabAndCheckLocation = function() {
   checkData["origin"] = "twine";
   checkData["androidId"] = location.androidId;
   
-  // Store data in state variables
-  State.variables.userLat = location.latitude;
-  State.variables.userLon = location.longitude;
-  State.variables.insideCampus = insideCampus;
-  State.variables.insideUrban = insideUrban;
-  State.variables.insideRural = insideRural;
+  // Convert the JavaScript object ot a JSON string
+  var jsonString = JSON.stringify(checkData);
   
-  // Log location details to console for debugging
-  console.log("User latitude: " + location.longitude + "," + " User longitude: " + location.longitude);
-  console.log("User in Campus Hexagon: " + insideCampus);
-  console.log("User in Urban Hexagon: " + insideUrban);
-  console.log("User in Rural Hexagon: " + insideRural);
-  
-  // Log the data stored in the JSON to console to ensure it is being generated properly
-  //console.log("JSON Date: ", checkData.datetime);
-  //console.log("JSON Lat: ", checkData.userLatitude);
-  //console.log("JSON Lon: ", checkData.userLongitude);
-  //console.log("JSON Hexagon: ", checkData.hexagon);
-  //console.log("JSON Origin: ", checkData.origin);
-  //console.log("JSON AndroidID: ", checkData.androidId);
-};
-
-// Function to grab internet metrics produced in Android backend.
-window.grabMetrics = function() {
-  
-  // Grab JSON string via the AndroidBridge
-  var metricsString = AndroidBridge.generateMetrics();
-  
-  // Parse the JSON string into a JavaScript object
-  var metricsObject = JSON.parse(metricsString)
-  
-  // Store data in state variables
-  State.variables.uploadSpeed = metricsObject.uploadSpeed;
-  State.variables.downloadSpeed = metricsObject.downloadSpeed;
-  State.variables.jitter = metricsObject.jitter;
-  State.variables.packetLoss = metricsObject.packetLoss;
-  State.variables.latency = metricsObject.latency;
-  
-  // Final release will need this data to be stored and sent somewhere just like the data in the function above
+  // Call the Android method to write the data to a file
+  AndroidBridge.writeTwineData(jsonString);
   
   // Log the metric outputs to the console for debugging
   //console.log("Upload Speed: " + State.variables.uploadSpeed + "Mbp\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + " Packet Loss: " + State.variables.packetLoss + "%," + " Latency: " + State.variables.latency + "ms");
+  
+  // Log the checkData to the console for debugging
+  /*
+  console.log("datetime: " + checkData["datetime"]);
+  console.log("userLatitude: " + checkData["userLatitude"]);
+  console.log("userLongitude: " + checkData["userLongitude"]);
+  console.log("hexagon: " + checkData["hexagon"]);
+  console.log("origin: " + checkData["origin"]);
+  console.log("androidId : " + checkData["androidId"]);
+  */
 };
 
 // Function to display internet metrics collected at user request. Only works if grabMetrics has been run previously.
@@ -483,7 +491,7 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 	&lt;&lt;run displayMetrics()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;run grabMetrics()&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CorrectResponse_RL" tags="" position="1100,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned X points!
+&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CorrectResponse_RL" tags="" position="1100,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned 100 points!
 Your current score is now &lt;&lt;print $score&gt;&gt;.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
@@ -494,11 +502,11 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 	&lt;&lt;run displayMetrics()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;run grabMetrics()&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="IncorrectResponse_RL" tags="" position="1300,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
+&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="IncorrectResponse_RL" tags="" position="1300,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="CorrectResponse_UL" tags="" position="700,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned X points!
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="CorrectResponse_UL" tags="" position="700,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned 100 points!
 Your current score is now &lt;&lt;print $score&gt;&gt;.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
@@ -509,7 +517,7 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 	&lt;&lt;run displayMetrics()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;run grabMetrics()&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="IncorrectResponse_UL" tags="" position="900,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
+&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="IncorrectResponse_UL" tags="" position="900,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;UrbanLocation&quot;&gt;&gt;

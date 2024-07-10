@@ -25,8 +25,7 @@ class LocationService : Service() {
 
     companion object {
         var latestLocation: Location? = null
-        // Can make this a JSONObject once we are set up with the server
-        val locationData = JSONObject() // Initialize JSON array
+        val locationData = JSONObject() // Initialize JSON object
         private const val CHANNEL_ID = "LocationServiceChannel"
     }
 
@@ -41,9 +40,9 @@ class LocationService : Service() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Create a location request
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).apply {
-            setMinUpdateIntervalMillis(1000)
-            setMaxUpdateDelayMillis(1000)
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 500).apply {
+            setMinUpdateIntervalMillis(500)
+            setMaxUpdateDelayMillis(500)
         }.build()
 
         // Define the location callback
@@ -63,6 +62,11 @@ class LocationService : Service() {
                         put("origin", "android")
                         put("androidId", Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID))
                     }
+
+                    // Append to JSON array and write to file
+                    val jsonArray = FileUtils.readJSONArrayFromFile(applicationContext)
+                    jsonArray.put(locationData)
+                    FileUtils.writeJSONArrayToFile(applicationContext, jsonArray)
                 }
                 Log.d("LocationService", locationData.toString(4))
             }

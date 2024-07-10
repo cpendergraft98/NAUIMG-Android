@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.icu.util.Calendar
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
@@ -13,11 +12,8 @@ import android.widget.Spinner
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.widget.ArrayAdapter
-import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.location.*
-import org.json.JSONObject
 import android.provider.Settings
 
 // MainActivity class extends AppCompatActivity

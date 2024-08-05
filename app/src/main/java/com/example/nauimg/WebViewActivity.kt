@@ -9,17 +9,24 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.annotation.SuppressLint
+import com.google.firebase.firestore.FirebaseFirestore
 
 // WebViewActivity class extends AppCompatActivity
 class WebViewActivity : AppCompatActivity() {
     // Initialize variables
     private lateinit var webView: WebView
     private lateinit var returnButton: Button
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var sessionId: String
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
+
+        firestore = FirebaseFirestore.getInstance()
+        sessionId = intent.getStringExtra("SESSION_ID") ?: "" // Retrieve the session ID passed from MainActivity
+
 
         // Find views by their IDs
         webView = findViewById(R.id.webView)
@@ -50,8 +57,9 @@ class WebViewActivity : AppCompatActivity() {
             webView.loadUrl("file:///android_asset/$filename")
         }
 
-        // Inject Javascript interfaces into WebView
-        webView.addJavascriptInterface(WebAppInterface(this), "AndroidBridge")
+        // Pass firestore and sessionId to WebAppInterface
+        webView.addJavascriptInterface(WebAppInterface(this, firestore, sessionId), "AndroidBridge")
+
 
         // Set click listener for return button
         returnButton.setOnClickListener {

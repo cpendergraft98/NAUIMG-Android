@@ -15,6 +15,10 @@ import android.widget.ArrayAdapter
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import android.provider.Settings
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import com.google.firebase.firestore.FirebaseFirestore
 
 // MainActivity class extends AppCompatActivity
 class MainActivity : AppCompatActivity() {
@@ -22,15 +26,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gameSpinner: Spinner
     private lateinit var launchButton: Button
     private lateinit var viewModel: MainViewModel
+    private lateinit var firestore: FirebaseFirestore
+    private var sessionId: String? = null
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Store Android ID for research purposes
-        // Generating an ID serverside may be better...
-        // This will work for now, ignore warning
+        // Initialize Firestore
+        firestore = FirebaseFirestore.getInstance()
+        FirebaseFirestore.setLoggingEnabled(true) // Enable Firestore logging
+
+        // Store Android ID for research purposes. Ignore warning
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         // Find views by their IDs
@@ -65,11 +73,16 @@ class MainActivity : AppCompatActivity() {
 
         // Set click listener for launch button
         launchButton.setOnClickListener {
-            viewModel.selectedGame.value?.let { game ->
-                val intent = Intent(this, WebViewActivity::class.java).apply {
-                    putExtra("FILENAME", game)
+            if (sessionId != null) {
+                viewModel.selectedGame.value?.let { game ->
+                    val intent = Intent(this, WebViewActivity::class.java).apply {
+                        putExtra("FILENAME", game)
+                        putExtra("SESSION_ID", sessionId)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -87,6 +100,67 @@ class MainActivity : AppCompatActivity() {
 
         // Check if location permission is granted, if not request permission
         checkLocationPermission()
+        promptForSessionId()
+    }
+
+    private fun promptForSessionId() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Enter Session ID")
+
+        val input = EditText(this)
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+            sessionId = input.text.toString()
+            createSession(sessionId!!)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.show()
+    }
+
+    private fun createSession(sessionId: String) {
+        Log.d("MainActivity", "Creating session with ID: $sessionId")
+        val sessionRef = firestore.collection("Movement Data").document(sessionId)
+        val deviceIds = listOf("a315f9b4e6403e14", "0371849f3bd4068e", "ed7f11200cba4493")
+        for (deviceId in deviceIds) {
+            val deviceRef = sessionRef.collection(deviceId)
+            val initialData: Map<String, Any> = hashMapOf("initialized" to true)
+            deviceRef.document("initial").set(initialData)
+                .addOnSuccessListener {
+                    Log.d("MainActivity", "DocumentSnapshot added with ID: $deviceId/initial")
+                }
+                .addOnFailureListener { e: Exception ->
+                    Log.e("MainActivity", "Error adding document", e)
+                }
+
+            // Create Check Data and Location Data documents
+            val checkDataDoc: Map<String, Any> = hashMapOf()
+            val locationDataDoc: Map<String, Any> = hashMapOf()
+            deviceRef.document("Check Data").set(checkDataDoc)
+                .addOnSuccessListener {
+                    Log.d("MainActivity", "Check Data document created for $deviceId")
+                }
+                .addOnFailureListener { e: Exception ->
+                    Log.e("MainActivity", "Error creating Check Data document", e)
+                }
+
+            deviceRef.document("Location Data").set(locationDataDoc)
+                .addOnSuccessListener {
+                    Log.d("MainActivity", "Location Data document created for $deviceId")
+                }
+                .addOnFailureListener { e: Exception ->
+                    Log.e("MainActivity", "Error creating Location Data document", e)
+                }
+        }
+
+        // Set the sessionId in the LocationService
+        val locationServiceIntent = Intent(this, LocationService::class.java)
+        locationServiceIntent.putExtra("sessionId", sessionId)
+        startService(locationServiceIntent)
     }
 
     private fun checkLocationPermission() {

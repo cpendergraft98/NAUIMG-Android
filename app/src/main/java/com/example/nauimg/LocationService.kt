@@ -18,11 +18,16 @@ import android.location.Location
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import org.json.JSONObject
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LocationService : Service() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
+
+    private lateinit var firestore: FirebaseFirestore
+    private var sessionId: String? = null
+    private lateinit var androidId: String
 
     companion object {
         var latestLocation: Location? = null
@@ -33,6 +38,11 @@ class LocationService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d("LocationService", "Service created")
+
+        // Initialize Firestore
+        firestore = FirebaseFirestore.getInstance()
+        sessionId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) // Assuming sessionId is Android ID for simplicity
+        androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         createNotificationChannel()
         startForegroundService()
@@ -55,19 +65,33 @@ class LocationService : Service() {
 
                 latestLocation?.let { location ->
                     val currentDate = Calendar.getInstance().time
-                    // Update a JSON object with the necessary data
+
+                    // JSON Object so Twine game has access to data
                     locationData.apply {
                         put("datetime", currentDate)
                         put("latitude", location.latitude)
                         put("longitude", location.longitude)
                         put("origin", "android")
-                        put("androidId", Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID))
+                        put("androidId", androidId)
                     }
 
-                    // Append to JSON array and write to file
-                    val jsonArray = FileUtils.readJSONArrayFromFile(applicationContext)
-                    jsonArray.put(locationData)
-                    FileUtils.writeJSONArrayToFile(applicationContext, jsonArray)
+                    // Hash Map so Firebase has access to data
+                    val locationDataHM = hashMapOf(
+                        "datetime" to currentDate,
+                        "latitude" to location.latitude,
+                        "longitude" to location.longitude,
+                        "origin" to "android",
+                        "androidId" to androidId
+                    )
+
+                    /*
+                     The reason we have a JSON object and a Hash Map is because in order to
+                     communicated data to Twine we need a JSON object and to communicate data
+                     to Firebase we need a Hash Map
+                    */
+
+                    // Append to Firestore document
+                    appendLocationToFirestore(locationDataHM)
                 }
                 Log.d("LocationService", locationData.toString(4))
             }
@@ -75,6 +99,33 @@ class LocationService : Service() {
         // Start location updates
         startLocationUpdates()
     }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        sessionId = intent?.getStringExtra("sessionId")
+        Log.d("LocationService", "Received session ID: $sessionId")
+        return START_STICKY
+    }
+
+    private fun appendLocationToFirestore(locationData: Map<String, Any>) {
+        // Check if sessionId is set
+        if (sessionId.isNullOrEmpty()) {
+            Log.w("LocationService", "Session ID is not set. Skipping Firestore write.")
+            return
+        }
+
+        val locationUpdatesRef = firestore.collection("Movement Data").document(sessionId!!)
+            .collection(androidId).document("Location Data").collection("Data")
+
+        // Add a new document with a generated ID
+        locationUpdatesRef.add(locationData)
+            .addOnSuccessListener { documentReference ->
+                Log.d("LocationService", "Location data added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.e("LocationService", "Error adding location data", e)
+            }
+    }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

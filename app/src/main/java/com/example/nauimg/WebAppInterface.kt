@@ -2,13 +2,15 @@ package com.example.nauimg
 
 import android.content.Context
 import android.webkit.JavascriptInterface
-import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Random
-import java.io.File
+import android.provider.Settings
+import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
+import org.json.JSONArray
 
 // WebAppInterface and related methods for communicating between Androind and JS
-class WebAppInterface(private val context: Context) {
+class WebAppInterface(private val context: Context, private val firestore: FirebaseFirestore, private val sessionId: String) {
 
     // Generate random metrics and return as JSON string
     @JavascriptInterface
@@ -37,33 +39,84 @@ class WebAppInterface(private val context: Context) {
         return LocationService.locationData.toString(4)
     }
 
-    @JavascriptInterface
-    fun writeTwineData(data: String){
-        // Parse the received JSON string into a JSONObject
-        val jsonObject = JSONObject(data)
+    private var checkCounter = 0
 
-        // Path to the file
-        val file = File(context.filesDir, "check_data.json")
-
-        val jsonArray: JSONArray
-
-        // Check if the file exists
-        if(file.exists()){
-            // Read the existing file
-            val existingData = file.readText()
-            // Parse the existing file content into a JSONArray
-            jsonArray = JSONArray(existingData)
-        }else{
-            // Create a new JSONArray
-            jsonArray = JSONArray()
-        }
-
-        // Add the new data to the array
-        jsonArray.put(jsonObject)
-
-        // Write the updated array back to the file
-        file.writeText(jsonArray.toString())
-
+    init {
+        resetCheckCounter()
     }
 
+    @JavascriptInterface
+    fun writeTwineData(data: String) {
+        try {
+            Log.d("WebAppInterface", "Received data: $data")
+
+            val jsonObject = JSONObject(data)
+
+            // Use the Android ID to identify the device
+            val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            Log.d("WebAppInterface", "Android ID: $androidId")
+
+            // Reference to the device's Check Data subcollection in Firestore
+            val checkDataRef = firestore.collection("Movement Data").document(sessionId)
+                .collection(androidId).document("Check Data").collection("Data")
+
+            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/$androidId/Check Data/CheckDataSub")
+
+            // Convert JSON object to Map
+            val dataMap = jsonToMap(jsonObject)
+
+            // Generate custom document ID
+            val checkId = generateCheckId()
+
+            // Add data to Firestore with custom document ID
+            checkDataRef.document(checkId).set(dataMap)
+                .addOnSuccessListener {
+                    Log.d("WebAppInterface", "DocumentSnapshot added with ID: $checkId")
+                }
+                .addOnFailureListener { e: Exception ->
+                    Log.w("WebAppInterface", "Error adding document", e)
+                }
+        } catch (e: Exception) {
+            Log.e("WebAppInterface", "Error in writeTwineData: ", e)
+        }
+    }
+
+    private fun generateCheckId(): String {
+        checkCounter += 1
+        return "Check $checkCounter"
+    }
+
+    private fun resetCheckCounter() {
+        checkCounter = 0
+    }
+
+    private fun jsonToMap(jsonObject: JSONObject): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        val keys = jsonObject.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            var value = jsonObject.get(key)
+            if (value is JSONObject) {
+                value = jsonToMap(value)
+            } else if (value is JSONArray) {
+                value = jsonToList(value)
+            }
+            map[key] = value
+        }
+        return map
+    }
+
+    private fun jsonToList(jsonArray: JSONArray): List<Any> {
+        val list = mutableListOf<Any>()
+        for (i in 0 until jsonArray.length()) {
+            var value = jsonArray.get(i)
+            if (value is JSONObject) {
+                value = jsonToMap(value)
+            } else if (value is JSONArray) {
+                value = jsonToList(value)
+            }
+            list.add(value)
+        }
+        return list
+    }
 }

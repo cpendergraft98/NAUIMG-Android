@@ -98,13 +98,10 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="ScavengerHunt" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="55E6330D-BEC5-4B27-9FFB-19595F5DB5CF" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
+	<tw-storydata name="ScavengerHunt" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="55E6330D-BEC5-4B27-9FFB-19595F5DB5CF" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
 function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
     // Calculate side length using the area of a regular hexagon
     const radius = Math.sqrt((2 * area) / (3 * Math.sqrt(3)));
-    
-  	//Log the radius to the console for debugging
-    console.log("Radius = ", radius);
 
     // Calculate angles for each vertex (in radians)
     const angles = [0, Math.PI / 3, (2 * Math.PI) / 3, Math.PI, (4 * Math.PI) / 3, (5 * Math.PI) / 3];
@@ -121,11 +118,6 @@ function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
         const latitude = centerLatitude + radiusLat * Math.cos(angle);
         const longitude = centerLongitude + radiusLon * Math.sin(angle);
         return { latitude, longitude };
-    });
-
-    // Log the vertices to the console with numerical values for debugging
-    vertices.forEach((vertex, index) => {
-        console.log(`Vertex ${index + 1}: Latitude ${vertex.latitude}, Longitude ${vertex.longitude}`);
     });
 
     return vertices;
@@ -180,6 +172,8 @@ window.grabAndCheckLocation = function() {
   // Parse the JSON string into a JavaScript object
   // location contains date, timestamp, latitude, longitude
   var location = JSON.parse(locationData);
+  console.log("User Lat: ", location.latitude);
+  console.log("User Lon: ", location.longitude);
   
   // Initialize location statuses as false
   let insideCampus = false;
@@ -191,83 +185,76 @@ window.grabAndCheckLocation = function() {
   insideUrban = isPointInsideHexagon(location.latitude, location.longitude, urbanSpace);
   insideRural = isPointInsideHexagon(location.latitude, location.longitude, ruralSpace);
   
+  console.log("insideCampus", insideCampus);
+  console.log("insideUrban", insideUrban);
+  console.log("insideRural", insideRural);
+  
   // Store data in state variables
   State.variables.insideCampus = insideCampus;
   State.variables.insideUrban = insideUrban;
   State.variables.insideRural = insideRural;
-  
-  // Log location details to console for debugging
-  console.log("User in Campus Hexagon: " + insideCampus);
-  console.log("User in Urban Hexagon: " + insideUrban);
-  console.log("User in Rural Hexagon: " + insideRural);
 };
 
-// Function to grab internet metrics produced in Android backend.
 window.grabMetricsAndWriteData = function() {
-  
-  // Grab JSON string via the AndroidBridge
-  var metricsString = AndroidBridge.generateMetrics();
-  var locationData = AndroidBridge.getLocationJSON();
-  
-  // Parse the JSON string into a JavaScript object
-  var metricsObject = JSON.parse(metricsString);
-  var location = JSON.parse(locationData);
-  
-  // Store data in state variables
-  State.variables.uploadSpeed = metricsObject.uploadSpeed;
-  State.variables.downloadSpeed = metricsObject.downloadSpeed;
-  State.variables.jitter = metricsObject.jitter;
-  State.variables.packetLoss = metricsObject.packetLoss;
-  State.variables.latency = metricsObject.latency;
-  
-  // Create an empty JSON object to be writted to a JSON array on the user device
-  let checkData = {};
-  
-  // Can also write metric data to this JSON later
-  
-  // Add Date, time, and user location data to checkData JSON
-  checkData["playerName"] = State.variables.playerName;
-  checkData["datetime"] = new Date();
-  checkData["userLatitude"] = location.latitude;
-  checkData["userLongitude"] = location.longitude; 
-  
-  // Check which location the user is in to determine what hexagon data to add to checkData JSON
-  if(State.variables.insideCampus){
-    checkData["hexagon"] = "User in campus hexagon";
-    //checkData["distanceFromHexCenter"] = 
-  } else if (State.variables.insideUrban) {
-    checkData["hexagon"] = "User in urban hexagon";
-    //checkData["distanceFromHexCenter"] =
-  } else if (State.variables.insideRural) {
-    checkData["hexagon"] = "User in rural hexagon";
-    //checkData["distanceFromHexCenter"] = 
-  } else {
-    checkData["hexagon"] = "User not in a hexagon of interest";
-    checkData["distanceFromHexCenter"] = "N/A";
-  }
-  
-  // Add origin and Android ID to checkData JSON
-  checkData["origin"] = "twine";
-  checkData["androidId"] = location.androidId;
-  
-  // Convert the JavaScript object ot a JSON string
-  var jsonString = JSON.stringify(checkData);
-  
-  // Call the Android method to write the data to a file
-  AndroidBridge.writeTwineData(jsonString);
-  
-  // Log the metric outputs to the console for debugging
-  //console.log("Upload Speed: " + State.variables.uploadSpeed + "Mbp\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + " Packet Loss: " + State.variables.packetLoss + "%," + " Latency: " + State.variables.latency + "ms");
-  
-  // Log the checkData to the console for debugging
-  /*
-  console.log("datetime: " + checkData["datetime"]);
-  console.log("userLatitude: " + checkData["userLatitude"]);
-  console.log("userLongitude: " + checkData["userLongitude"]);
-  console.log("hexagon: " + checkData["hexagon"]);
-  console.log("origin: " + checkData["origin"]);
-  console.log("androidId : " + checkData["androidId"]);
-  */
+    try {
+        console.log("Starting grabMetricsAndWriteData");
+
+        // Grab JSON string via the AndroidBridge
+        var metricsString = AndroidBridge.generateMetrics();
+        var locationData = AndroidBridge.getLocationJSON();
+        console.log("Metrics String: ", metricsString);
+        console.log("Location Data: ", locationData);
+
+        // Parse the JSON string into a JavaScript object
+        var metricsObject = JSON.parse(metricsString);
+        var location = JSON.parse(locationData);
+        console.log("Parsed Metrics Object: ", metricsObject);
+        console.log("Parsed Location: ", location);
+
+        // Store data in state variables
+        State.variables.uploadSpeed = metricsObject.uploadSpeed;
+        State.variables.downloadSpeed = metricsObject.downloadSpeed;
+        State.variables.jitter = metricsObject.jitter;
+        State.variables.packetLoss = metricsObject.packetLoss;
+        State.variables.latency = metricsObject.latency;
+
+        // Create an empty JSON object to be written to a JSON array on the user device
+        let checkData = {};
+
+        // Add Date, time, user location, and the question answered to checkData JSON
+        checkData["playerName"] = State.variables.playerName;
+        checkData["datetime"] = new Date();
+        checkData["userLatitude"] = location.latitude;
+        checkData["userLongitude"] = location.longitude;
+      	checkData["questionAnswered"] = State.variables.hintAnswered;
+
+        // Check which location the user is in to determine what hexagon data to add to checkData JSON
+        if (State.variables.insideCampus) {
+            checkData["hexagon"] = "User in campus hexagon";
+        } else if (State.variables.insideUrban) {
+            checkData["hexagon"] = "User in urban hexagon";
+        } else if (State.variables.insideRural) {
+            checkData["hexagon"] = "User in rural hexagon";
+        } else {
+            checkData["hexagon"] = "User not in a hexagon of interest";
+            checkData["distanceFromHexCenter"] = "N/A";
+        }
+
+        // Add origin and Android ID to checkData JSON
+        checkData["origin"] = "twine";
+        checkData["androidId"] = location.androidId;
+
+        // Convert the JavaScript object to a JSON string
+        var jsonString = JSON.stringify(checkData);
+        console.log("JSON String to be written: ", jsonString);
+
+        // Call the Android method to write the data to Firestore
+        AndroidBridge.writeTwineData(jsonString);
+
+        console.log("Data written to Firestore");
+    } catch (error) {
+        console.error("Error in grabMetricsAndWriteData: ", error);
+    }
 };
 
 // Function to display internet metrics collected at user request. Only works if grabMetrics has been run previously.
@@ -305,6 +292,7 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_ULH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint1 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -321,6 +309,7 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_ULH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -337,6 +326,7 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_ULH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -360,6 +350,7 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_RLH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint1 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -376,6 +367,7 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_RLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -392,6 +384,7 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_RLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -432,6 +425,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_CLH1.trim().toLowerCase() == &quot;isb&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint1 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -448,6 +442,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_CLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint2 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -464,6 +459,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;if $entry_CLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint3 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
             &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
         &lt;&lt;else&gt;&gt;

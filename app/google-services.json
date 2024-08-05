@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "139579663450",
-    "project_id": "nauimg-fc246",
-    "storage_bucket": "nauimg-fc246.appspot.com"
+    "project_number": "1020382562858",
+    "project_id": "nauimg-524b6",
+    "storage_bucket": "nauimg-524b6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:139579663450:android:4a4083d76ec6f5a4cb6463",
+        "mobilesdk_app_id": "1:1020382562858:android:006a555f5afa6835329153",
         "android_client_info": {
           "package_name": "com.example.nauimg"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDg9CWHRUb4wCkLSrVQgEX4_d6d1Rw8Pyg"
+          "current_key": "AIzaSyCXcdl-6HLUuXWL0E7r9d29UH47NjykUUw"
         }
       ],
       "services": {

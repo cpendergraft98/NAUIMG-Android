@@ -16,4 +16,10 @@
         android:layout_height="wrap_content"
         android:text="Launch Game" />
 
+    <Button
+        android:id="@+id/stcButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Speedtester" />
+
 </LinearLayout>

@@ -41,7 +41,6 @@ class LocationService : Service() {
 
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance()
-        sessionId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) // Assuming sessionId is Android ID for simplicity
         androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         createNotificationChannel()

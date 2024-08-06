@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     // Initialize variables
     private lateinit var gameSpinner: Spinner
     private lateinit var launchButton: Button
+    private lateinit var stcButton: Button
     private lateinit var viewModel: MainViewModel
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         // Find views by their IDs
         gameSpinner = findViewById(R.id.gameSpinner)
         launchButton = findViewById(R.id.launchButton)
+        stcButton = findViewById(R.id.stcButton)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
@@ -81,6 +83,19 @@ class MainActivity : AppCompatActivity() {
                     }
                     startActivity(intent)
                 }
+            } else {
+                Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Set click listener for the Speedtester button
+        stcButton.setOnClickListener {
+            if (sessionId != null) {
+                val intent = Intent(this, SpeedTestClone::class.java).apply {
+                    putExtra("SESSION_ID", sessionId)
+                }
+                    startActivity(intent)
+
             } else {
                 Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
             }

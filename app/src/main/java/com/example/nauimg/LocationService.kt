@@ -31,6 +31,8 @@ import com.google.android.gms.maps.model.LatLng
 import kotlin.math.*
 import android.os.Handler
 import android.os.Looper
+import android.os.HandlerThread
+import android.os.Process
 
 class LocationService : Service(), SensorEventListener {
 
@@ -53,6 +55,9 @@ class LocationService : Service(), SensorEventListener {
     private var sessionId: String? = null
     private lateinit var androidId: String
 
+    private lateinit var handlerThread: HandlerThread
+    private lateinit var backgroundHandler: Handler
+
     companion object {
         var latestLocation: Location? = null
         val locationData = JSONObject() // Initialize JSON object
@@ -67,6 +72,11 @@ class LocationService : Service(), SensorEventListener {
     override fun onCreate() {
         super.onCreate()
         Log.d("LocationService", "Service created")
+
+        // Initialize the HandlerThread and Handler for background processing
+        handlerThread = HandlerThread("LocationServiceThread", Process.THREAD_PRIORITY_BACKGROUND)
+        handlerThread.start()
+        backgroundHandler = Handler(handlerThread.looper)
 
         // Initialize Vibrator
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -102,9 +112,9 @@ class LocationService : Service(), SensorEventListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Create a location request
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 500).apply {
-            setMinUpdateIntervalMillis(500)
-            setMaxUpdateDelayMillis(500)
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).apply {
+            setMinUpdateIntervalMillis(1000)
+            setMaxUpdateDelayMillis(1000)
             setMinUpdateDistanceMeters(0f)
         }.build()
 
@@ -114,80 +124,14 @@ class LocationService : Service(), SensorEventListener {
                 super.onLocationResult(locationResult)
                 latestLocation = locationResult.lastLocation
 
-                // Calculate the smoothed location but don't overwrite latestLocation
-                val smoothedLocation = smoothLocation(latestLocation!!)
-
                 // Log the user's current location
-                Log.d("LocationService", "User's current location: Latitude = ${smoothedLocation.latitude}, Longitude = ${smoothedLocation.longitude}")
-                
                 Log.d("LocationService", "Location update received: $latestLocation")
 
-                latestLocation?.let { location ->
-                    val currentDate = Calendar.getInstance().time
-
-                    // JSON Object so Twine game has access to data
-                    locationData.apply {
-                        put("datetime", currentDate)
-                        put("latitude", location.latitude)
-                        put("longitude", location.longitude)
-                        put("azimuth", azimuth) // Include latest azimuth
-                        put("direction", direction) // Include latest direction
-                        put("origin", "android")
-                        put("androidId", androidId)
-                    }
-
-                    // Hash Map so Firebase has access to data
-                    val locationDataHM = hashMapOf(
-                        "datetime" to currentDate,
-                        "latitude" to location.latitude,
-                        "longitude" to location.longitude,
-                        "azimuth" to azimuth, // Include latest azimuth
-                        "direction" to direction, // Include latest direction
-                        "origin" to "android",
-                        "androidId" to androidId
-                    )
-
-                    // Append to Firestore document
-                    appendLocationToFirestore(locationDataHM)
-
-                    // Use the smoothed location for POI detection
-                    if (LocationService.pois.isNotEmpty()) {
-                        var closestPoi: LatLng? = null
-                        var minDistance = Double.MAX_VALUE
-
-                        // Find the closest POI using the smoothed location
-                        for (poi in LocationService.pois) {
-                            val distance = haversine(smoothedLocation.latitude, smoothedLocation.longitude, poi.latitude, poi.longitude)
-
-                            Log.d("LocationService", "POI location: Latitude = ${poi.latitude}, Longitude = ${poi.longitude}")
-                            Log.d("LocationService", "Distance to POI: $distance meters")
-
-                            if (distance < minDistance) {
-                                minDistance = distance
-                                closestPoi = poi
-                            }
-                        }
-
-                        closestPoi?.let { poi ->
-                            if (minDistance <= 1.2) { // Adjust your detection radius accordingly
-                                Log.d("NotificationTest", "User is within 1.2 meters of POI, sending notification.")
-                                notifyUserOfPOI() // Notify user
-                                LocationService.pois.remove(poi) // Remove the POI from the list
-                            } else {
-                                adjustVibrationPulse(minDistance) // Adjust pulse frequency based on distance
-                            }
-                        }
-                    }
-
-                    if (LocationService.pois.isEmpty()) {
-                        Log.d("LocationService", "All POIs found. Stopping vibration.")
-                        stopVibration()
-                    }
-                }
-                Log.d("LocationService", locationData.toString(4))
+                // Handle location updates on background thread
+                handleLocationUpdate(locationResult)
             }
         }
-        // Start location updates
+        // Start location updates on the background thread
         startLocationUpdates()
     }
 
@@ -205,15 +149,87 @@ class LocationService : Service(), SensorEventListener {
             longitude = averageLon
         }
     }
+
+    private fun handleLocationUpdate(locationResult: LocationResult) {
+        latestLocation?.let { rawLocation ->
+            // Calculate the smoothed location based on recent locations
+            val smoothedLocation = smoothLocation(rawLocation)
+
+            val currentDate = Calendar.getInstance().time
+
+            // Store the raw location data in the JSON object
+            locationData.apply {
+                put("datetime", currentDate)
+                put("latitude", rawLocation.latitude)
+                put("longitude", rawLocation.longitude)
+                put("azimuth", azimuth) // Include latest azimuth
+                put("direction", direction) // Include latest direction
+                put("origin", "android")
+                put("androidId", androidId)
+            }
+
+            // Store the raw location data in the HashMap
+            val locationDataHM = hashMapOf(
+                "datetime" to currentDate,
+                "latitude" to rawLocation.latitude,
+                "longitude" to rawLocation.longitude,
+                "azimuth" to azimuth, // Include latest azimuth
+                "direction" to direction, // Include latest direction
+                "origin" to "android",
+                "androidId" to androidId
+            )
+
+            // Append the raw location data to Firestore
+            appendLocationToFirestore(locationDataHM)
+
+            // Use the smoothed location for POI detection
+            if (pois.isNotEmpty()) {
+                var closestPoi: LatLng? = null
+                var minDistance = Double.MAX_VALUE
+
+                // Find the closest POI using the smoothed location
+                for (poi in pois) {
+                    // Calculate the distance between the user's smoothed location and the POI
+                    val distance = haversine(smoothedLocation.latitude, smoothedLocation.longitude, poi.latitude, poi.longitude)
+
+                    // Log the POI location and distance to the user
+                    Log.d("VibrationService", "POI location: Latitude = ${poi.latitude}, Longitude = ${poi.longitude}")
+                    Log.d("VibrationService", "Distance to POI: $distance meters")
+
+                    if (distance < minDistance) {
+                        minDistance = distance
+                        closestPoi = poi
+                    }
+                }
+
+                closestPoi?.let { poi ->
+                    if (minDistance <= 1.2) { // Adjust your detection radius accordingly
+                        Log.d("NotificationTest", "User is within 1.2 meters of POI, sending notification.")
+                        notifyUserOfPOI() // Notify user
+                        pois.remove(poi) // Remove the POI from the list
+                    } else {
+                        adjustVibrationPulse(minDistance) // Adjust pulse frequency based on distance
+                    }
+                }
+            }
+
+            if (pois.isEmpty()) {
+                Log.d("LocationService", "All POIs found. Stopping vibration.")
+                stopVibration()
+            }
+        }
+        Log.d("LocationService", locationData.toString(4))
+    }
+
     override fun onSensorChanged(event: SensorEvent) {
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
                 System.arraycopy(event.values, 0, gravity, 0, event.values.size)
-                Log.d("LocationService", "Accelerometer data: ${event.values.contentToString()}")
+                //Log.d("LocationService", "Accelerometer data: ${event.values.contentToString()}")
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 System.arraycopy(event.values, 0, geomagnetic, 0, event.values.size)
-                Log.d("LocationService", "Magnetometer data: ${event.values.contentToString()}")
+                //Log.d("LocationService", "Magnetometer data: ${event.values.contentToString()}")
             }
         }
 
@@ -224,10 +240,10 @@ class LocationService : Service(), SensorEventListener {
             SensorManager.getOrientation(rotationMatrix, orientation)
 
             azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
-            Log.d("LocationService", "Azimuth in degrees before rounding: $azimuth")
+            //Log.d("LocationService", "Azimuth in degrees before rounding: $azimuth")
 
             azimuth = (azimuth + 360) % 360 // Convert to 0-360 range
-            Log.d("LocationService", "Azimuth after converting to 0-360 range: $azimuth")
+            //Log.d("LocationService", "Azimuth after converting to 0-360 range: $azimuth")
 
             // Convert azimuth to cardinal direction
             direction = when (azimuth.roundToInt()) {
@@ -239,8 +255,8 @@ class LocationService : Service(), SensorEventListener {
                 else -> "Unknown"
             }
 
-            Log.d("LocationService", "Rotation matrix calculated successfully.")
-            Log.d("LocationService", "Azimuth: $azimuth°, Direction: $direction")
+            //Log.d("LocationService", "Rotation matrix calculated successfully.")
+            //Log.d("LocationService", "Azimuth: $azimuth°, Direction: $direction")
         } else {
             Log.e("LocationService", "Failed to calculate rotation matrix.")
         }
@@ -393,8 +409,9 @@ class LocationService : Service(), SensorEventListener {
 
     private fun startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, mainLooper)
-            Log.d("LocationService", "Location updates started")
+            // Request location updates using the HandlerThread's looper
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, handlerThread.looper)
+            Log.d("LocationService", "Location updates started on background thread")
         } else {
             Log.e("LocationService", "Location permission not granted")
         }
@@ -411,6 +428,7 @@ class LocationService : Service(), SensorEventListener {
         handler?.removeCallbacksAndMessages(null)
         cancelVibration()
         stopLocationUpdates()
+        handlerThread.quitSafely()
         Log.d("LocationService", "Service destroyed")
     }
 

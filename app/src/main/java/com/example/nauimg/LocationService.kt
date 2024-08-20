@@ -114,6 +114,14 @@ class LocationService : Service(), SensorEventListener {
                 super.onLocationResult(locationResult)
                 latestLocation = locationResult.lastLocation
 
+                // Calculate the smoothed location but don't overwrite latestLocation
+                val smoothedLocation = smoothLocation(latestLocation!!)
+
+                // Log the user's current location
+                Log.d("LocationService", "User's current location: Latitude = ${smoothedLocation.latitude}, Longitude = ${smoothedLocation.longitude}")
+                
+                Log.d("LocationService", "Location update received: $latestLocation")
+
                 latestLocation?.let { location ->
                     val currentDate = Calendar.getInstance().time
 
@@ -143,18 +151,16 @@ class LocationService : Service(), SensorEventListener {
                     appendLocationToFirestore(locationDataHM)
 
                     // Use the smoothed location for POI detection
-                    if (pois.isNotEmpty()) {
+                    if (LocationService.pois.isNotEmpty()) {
                         var closestPoi: LatLng? = null
                         var minDistance = Double.MAX_VALUE
 
                         // Find the closest POI using the smoothed location
                         for (poi in LocationService.pois) {
-                            // Calculate the distance between the user's current location and the POI
-                            val distance = haversine(location.latitude, location.longitude, poi.latitude, poi.longitude)
+                            val distance = haversine(smoothedLocation.latitude, smoothedLocation.longitude, poi.latitude, poi.longitude)
 
-                            // Log the POI location and distance to the user
-                            Log.d("VibrationService", "POI location: Latitude = ${poi.latitude}, Longitude = ${poi.longitude}")
-                            Log.d("VibrationService", "Distance to POI: $distance meters")
+                            Log.d("LocationService", "POI location: Latitude = ${poi.latitude}, Longitude = ${poi.longitude}")
+                            Log.d("LocationService", "Distance to POI: $distance meters")
 
                             if (distance < minDistance) {
                                 minDistance = distance
@@ -166,7 +172,7 @@ class LocationService : Service(), SensorEventListener {
                             if (minDistance <= 1.2) { // Adjust your detection radius accordingly
                                 Log.d("NotificationTest", "User is within 1.2 meters of POI, sending notification.")
                                 notifyUserOfPOI() // Notify user
-                                pois.remove(poi) // Remove the POI from the list
+                                LocationService.pois.remove(poi) // Remove the POI from the list
                             } else {
                                 adjustVibrationPulse(minDistance) // Adjust pulse frequency based on distance
                             }

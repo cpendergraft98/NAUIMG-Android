@@ -7,9 +7,10 @@ import java.util.Random
 import android.provider.Settings
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.gms.maps.model.LatLng
 import org.json.JSONArray
 
-// WebAppInterface and related methods for communicating between Androind and JS
+// WebAppInterface and related methods for communicating between Android and JS
 class WebAppInterface(private val context: Context, private val firestore: FirebaseFirestore, private val sessionId: String) {
 
     // Generate random metrics and return as JSON string
@@ -79,6 +80,23 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
         } catch (e: Exception) {
             Log.e("WebAppInterface", "Error in writeTwineData: ", e)
         }
+    }
+
+    // Used for the zombie game. Sets pois in android backend for use by vibration features
+    @JavascriptInterface
+    fun setPOIData(jsonPOIs: String) {
+        val poiArray = JSONArray(jsonPOIs)
+        val poiList = mutableListOf<LatLng>()
+        for (i in 0 until poiArray.length()) {
+            val poi = poiArray.getJSONObject(i)
+            val latLng = LatLng(poi.getDouble("latitude"), poi.getDouble("longitude"))
+            poiList.add(latLng)
+
+            // Log each POI with its latitude and longitude
+            Log.d("setPOIData", "POI $i: Latitude = ${latLng.latitude}, Longitude = ${latLng.longitude}")
+        }
+        LocationService.setPOIs(poiList)
+        Log.d("setPOIData", "POI Data received and set. Total POIs: ${poiList.size}")
     }
 
     private fun generateCheckId(): String {

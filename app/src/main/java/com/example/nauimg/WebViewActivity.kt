@@ -9,6 +9,10 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
+import android.content.ServiceConnection
+import android.os.IBinder
 import com.google.firebase.firestore.FirebaseFirestore
 
 // WebViewActivity class extends AppCompatActivity
@@ -18,6 +22,25 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var returnButton: Button
     private lateinit var firestore: FirebaseFirestore
     private lateinit var sessionId: String
+    private var locationService: LocationService? = null
+    private var isBound = false
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as LocationService.LocalBinder
+            locationService = binder.getService()
+            isBound = true
+
+            // Pass the WebView instance to the LocationService
+            locationService?.setWebView(webView)
+
+            // Add the Javascript Interface after the locationService is guaranteed to be initialized
+            webView.addJavascriptInterface(WebAppInterface(this@WebViewActivity, firestore, sessionId, locationService!!), "AndroidBridge")
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            isBound = false
+        }
+    }
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,15 +80,27 @@ class WebViewActivity : AppCompatActivity() {
             webView.loadUrl("file:///android_asset/$filename")
         }
 
-        // Pass firestore and sessionId to WebAppInterface
-        webView.addJavascriptInterface(WebAppInterface(this, firestore, sessionId), "AndroidBridge")
-
 
         // Set click listener for return button
         returnButton.setOnClickListener {
             // Create intent to return to MainActivity
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Intent(this, LocationService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if(isBound) {
+            unbindService(connection)
+            isBound = false
         }
     }
 }

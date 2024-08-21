@@ -24,6 +24,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Binder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -33,6 +34,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.HandlerThread
 import android.os.Process
+import android.webkit.WebView
 
 class LocationService : Service(), SensorEventListener {
 
@@ -57,6 +59,23 @@ class LocationService : Service(), SensorEventListener {
 
     private lateinit var handlerThread: HandlerThread
     private lateinit var backgroundHandler: Handler
+
+    // Binder given to clients
+    private val binder = LocalBinder()
+
+    // Class used for client binder
+    inner class LocalBinder : Binder() {
+        fun getService(): LocationService = this@LocationService
+    }
+
+    private var poiCheckCallback: ((Boolean) -> Unit)? = null
+
+    private var webView: WebView? = null
+
+    // Method to set the WebView Instance
+    fun setWebView(webView: WebView){
+        this.webView = webView
+    }
 
     companion object {
         var latestLocation: Location? = null
@@ -151,28 +170,25 @@ class LocationService : Service(), SensorEventListener {
     }
 
     private fun handleLocationUpdate(locationResult: LocationResult) {
-        latestLocation?.let { rawLocation ->
-            // Calculate the smoothed location based on recent locations
-            val smoothedLocation = smoothLocation(rawLocation)
-
+        latestLocation?.let { location ->
             val currentDate = Calendar.getInstance().time
 
-            // Store the raw location data in the JSON object
+            // JSON Object so Twine game has access to data
             locationData.apply {
                 put("datetime", currentDate)
-                put("latitude", rawLocation.latitude)
-                put("longitude", rawLocation.longitude)
+                put("latitude", location.latitude)
+                put("longitude", location.longitude)
                 put("azimuth", azimuth) // Include latest azimuth
                 put("direction", direction) // Include latest direction
                 put("origin", "android")
                 put("androidId", androidId)
             }
 
-            // Store the raw location data in the HashMap
+            // Hash Map so Firebase has access to data
             val locationDataHM = hashMapOf(
                 "datetime" to currentDate,
-                "latitude" to rawLocation.latitude,
-                "longitude" to rawLocation.longitude,
+                "latitude" to location.latitude,
+                "longitude" to location.longitude,
                 "azimuth" to azimuth, // Include latest azimuth
                 "direction" to direction, // Include latest direction
                 "origin" to "android",
@@ -182,15 +198,14 @@ class LocationService : Service(), SensorEventListener {
             // Append the raw location data to Firestore
             appendLocationToFirestore(locationDataHM)
 
-            // Use the smoothed location for POI detection
+            // If there are POIs, find the closest one and adjust the vibration accordingly
             if (pois.isNotEmpty()) {
                 var closestPoi: LatLng? = null
                 var minDistance = Double.MAX_VALUE
 
-                // Find the closest POI using the smoothed location
+                // Iterate over the POIs to find the closest one
                 for (poi in pois) {
-                    // Calculate the distance between the user's smoothed location and the POI
-                    val distance = haversine(smoothedLocation.latitude, smoothedLocation.longitude, poi.latitude, poi.longitude)
+                    val distance = haversine(location.latitude, location.longitude, poi.latitude, poi.longitude)
 
                     // Log the POI location and distance to the user
                     Log.d("VibrationService", "POI location: Latitude = ${poi.latitude}, Longitude = ${poi.longitude}")
@@ -202,17 +217,20 @@ class LocationService : Service(), SensorEventListener {
                     }
                 }
 
+                // Adjust the vibration based on the closest POI
                 closestPoi?.let { poi ->
-                    if (minDistance <= 1.2) { // Adjust your detection radius accordingly
-                        Log.d("NotificationTest", "User is within 1.2 meters of POI, sending notification.")
-                        notifyUserOfPOI() // Notify user
-                        pois.remove(poi) // Remove the POI from the list
-                    } else {
-                        adjustVibrationPulse(minDistance) // Adjust pulse frequency based on distance
-                    }
+                    adjustVibrationPulse(minDistance)
                 }
             }
 
+            // Handle the manual POI check via callback
+            poiCheckCallback?.let { callback ->
+                val isAtPOI = checkIfWithinPOI(latestLocation)
+                callback(isAtPOI)
+                poiCheckCallback = null  // Reset callback after it's used
+            }
+
+            // Stop the vibration if there are no more POIs left
             if (pois.isEmpty()) {
                 Log.d("LocationService", "All POIs found. Stopping vibration.")
                 stopVibration()
@@ -262,6 +280,33 @@ class LocationService : Service(), SensorEventListener {
         }
     }
 
+    fun waitForLocationUpdate() {
+        Log.d("LocationService", "Waiting for the next location update...")
+        poiCheckCallback = { isAtPOI ->
+            val script = "receivePOICheck($isAtPOI);"
+            webView?.let { view ->
+                Handler(Looper.getMainLooper()).post {
+                    view.evaluateJavascript(script, null)
+                }
+            }
+        }
+    }
+
+    private fun checkIfWithinPOI(location: Location?): Boolean {
+        location?.let {
+            val iterator = pois.iterator()
+            while (iterator.hasNext()) {
+                val poi = iterator.next()
+                val distance = haversine(it.latitude, it.longitude, poi.latitude, poi.longitude)
+                if (distance <= 7.0) {
+                    iterator.remove()  // Remove the POI from the list
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     private fun stopVibration() {
         handler?.removeCallbacksAndMessages(null)
         vibrator.cancel()
@@ -299,14 +344,14 @@ class LocationService : Service(), SensorEventListener {
     private var isVibrating = false
 
     private fun adjustVibrationPulse(distance: Double) {
-        val maxDistance = 50.0
+        val maxDistance = 30.0
 
         // Define distance ranges and corresponding delays
         val delayRanges = mapOf(
-            0..10 to 100L, // 11-20 meters: 400ms delay
-            11..30 to 400L,// 21-30 meters: 600ms delay
-            31..40 to 700L,   // 31-40 meters: 800ms delay
-            41..maxDistance.toInt() to 1000L  // 41-50 meters: 1000ms delay
+            0..7 to 250L, // 0-7 meters: 250ms delay
+            8..15 to 500L,// 8-15 meters: 500ms delay
+            16..23 to 1000L,   // 16-23 meters: 1000ms delay
+            24..maxDistance.toInt() to 2000L  // 24-30 meters: 2000ms delay
         )
 
         // Determine which range the current distance falls into
@@ -360,26 +405,6 @@ class LocationService : Service(), SensorEventListener {
                 sin(dLon / 2) * sin(dLon / 2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return earthRadius * c
-    }
-
-    private fun notifyUserOfPOI() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "poi_channel_id"
-        val channelName = "POI Notifications"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_background) // Replace with your app's icon
-            .setContentTitle("Point of Interest Found!")
-            .setContentText("You have reached a point of interest.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-
-        notificationManager.notify(1, notificationBuilder.build())
     }
 
     private fun createNotificationChannel() {
@@ -444,8 +469,8 @@ class LocationService : Service(), SensorEventListener {
         Log.d("VibrationService", "Vibration canceled")
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

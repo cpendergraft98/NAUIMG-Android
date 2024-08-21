@@ -104,6 +104,12 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
         Log.d("POICheck", "POICheck requested from JS.")
         locationService.waitForLocationUpdate()
     }
+    @JavascriptInterface
+    fun requestHint() {
+        Log.d("WebAppInterface", "Hint requested from JS.")
+        locationService.waitForHintLocationUpdate()
+    }
+
 
     private fun generateCheckId(): String {
         checkCounter += 1

@@ -69,6 +69,7 @@ class LocationService : Service(), SensorEventListener {
     }
 
     private var poiCheckCallback: ((Boolean) -> Unit)? = null
+    private var hintCallback: ((String) -> Unit)? = null
 
     private var webView: WebView? = null
 
@@ -223,6 +224,13 @@ class LocationService : Service(), SensorEventListener {
                 }
             }
 
+            // Handle the hint generation via callback
+            hintCallback?.let { callback ->
+                val hint = generateHint()
+                callback(hint)
+                hintCallback = null  // Reset callback after it's used
+            }
+
             // Handle the manual POI check via callback
             poiCheckCallback?.let { callback ->
                 val isAtPOI = checkIfWithinPOI(latestLocation)
@@ -305,6 +313,47 @@ class LocationService : Service(), SensorEventListener {
             }
         }
         return false
+    }
+
+    fun waitForHintLocationUpdate() {
+        Log.d("LocationService", "Waiting for the next location update for hint generation...")
+        hintCallback = {
+            val hint = generateHint()
+            webView?.let { view ->
+                Handler(Looper.getMainLooper()).post {
+                    view.evaluateJavascript("receiveHint('$hint');", null)
+                }
+            }
+        }
+    }
+
+    private fun generateHint(): String {
+        // Example logic for generating a hint based on current orientation and nearest POI
+        var hint = "No hint available"
+        latestLocation?.let { location ->
+            val nearestPoi = pois.minByOrNull { haversine(location.latitude, location.longitude, it.latitude, it.longitude) }
+            nearestPoi?.let { poi ->
+                val bearingToPoi = bearing(location.latitude, location.longitude, poi.latitude, poi.longitude)
+                val relativeBearing = (bearingToPoi - azimuth + 360) % 360
+
+                hint = when {
+                    relativeBearing < 45 || relativeBearing > 315 -> "Move forward!"
+                    relativeBearing in 45.0..135.0 -> "Turn right and move forward!"
+                    relativeBearing in 135.0..225.0 -> "Turn around and move forward!"
+                    relativeBearing in 225.0..315.0 -> "Turn left and move forward!"
+                    else -> "Unable to determine direction, try moving around."
+                }
+            }
+        }
+        return hint
+    }
+
+    private fun bearing(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val dLon = Math.toRadians(lon2 - lon1)
+        val y = sin(dLon) * cos(Math.toRadians(lat2))
+        val x = cos(Math.toRadians(lat1)) * sin(Math.toRadians(lat2)) -
+                sin(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * cos(dLon)
+        return (Math.toDegrees(atan2(y, x)) + 360) % 360
     }
 
     private fun stopVibration() {

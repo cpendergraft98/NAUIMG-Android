@@ -199,28 +199,29 @@ window.grabAndCheckLocation = function() {
 window.sendPOIData = function(){
   // Point of Interest lists for each of the three locations:
   var campusPois = JSON.stringify([
-    {latitude: 35.186127, longitude: -111.658185}
+    {latitude: 35.186191, longitude: -111.658219}, // SICCS entrance
+    {latitude: 35.185980, longitude: -111.658405}, // SICCS patio
+    {latitude: 35.185765, longitude: -111.658330}, // SICCS small lot
+    {latitude: 35.185564, longitude: -111.658066}  // ISB Lot
   ]);
   
   var urbanPois = JSON.stringify([
-    {latitude: 35.19913, longitude: -111.648010}
+    {latitude: 35.198773, longitude:-111.648046}, // Green tables near cat sculpture
+    {latitude: 35.198600, longitude:-111.647828}, // Hello sugar salon
+    {latitude: 35.198444, longitude:-111.647922}, // Forum Center
+    {latitude: 35.198521, longitude:-111.648314}  // Mozelle's Bakery Sign
   ]);
   
   var ruralPois = JSON.stringify([
-    {latitude: 35.234485, longitude: -111.666281}
-  ]);
-
-  var testPois = JSON.stringify([
-    {latitude: 35.186081, longitude: -111.658462},
-    {latitude: 35.186333, longitude: -111.658435},
-    {latitude: 35.186421, longitude: -111.658373},
-    {latitude: 35.186108, longitude: -111.658439}
+    {latitude: 35.234288, longitude: -111.665135}, // Progression sculpture
+    {latitude: 35.234222, longitude: -111.665501}, // Museum entrance
+    {latitude: 35.234671, longitude: -111.665116}, // Parking lot
+    {latitude: 35.234244, longitude: -111.665822}  // Left of the entrance, around back
   ]);
       
   if(State.variables.insideCampus) {
-    //AndroidBridge.setPOIData(campusPois);
     console.log("Campus POIs sent to Android");
-    AndroidBridge.setPOIData(testPois);
+    AndroidBridge.setPOIData(campusPois);
   } else if (State.variables.insideUrban) {
     console.log("Urban POIs sent to Android");
   	AndroidBridge.setPOIData(urbanPois);
@@ -311,32 +312,32 @@ window.grabMetricsAndWriteData = function() {
     } catch (error) {
         console.error("Error in grabMetricsAndWriteData: ", error);
     }
-};</script><tw-passagedata pid="1" name="ScientistStart" tags="" position="375,400" size="100,100">Welcome to the war against the zombie plague, Doctor. The Global Coalition has identified new plant life that contains antibodies with a natural resistance to the Zombie disease. As a new recruit, you are tasked with locating samples of this substance so that we may synthesize a vaccine. Speak with your dispatcher, they will be able to provide you with information regarding the supposed location of the plant materials we are looking for. Be warned, though, as the zombies have begun attacking our field recruits en mass. If you see a zombie, do not engage. You will not win. 
+};</script><tw-passagedata pid="1" name="ScientistStart" tags="" position="450,550" size="100,100">Welcome to the war against the zombie plague, Doctor. We have recently identified new plant life that contains antibodies with a natural resistance to the Zombie disease. As a new recruit, you are tasked with locating samples of this substance so that we may synthesize a vaccine. Speak with your dispatcher, they will be able to provide you with information regarding the supposed location of the plant materials we are looking for. Be warned, though, as the zombies have begun attacking our field recruits en mass. If you see a zombie, do not engage. You will not win. 
 
 Are you prepared to put your life on the line to save human civilization?
 
 &lt;&lt;link &quot;Proceed&quot;&gt;&gt;
+	&lt;&lt;run sendPOIData()&gt;&gt;
 	&lt;&lt;goto &quot;ScientistGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="ZombieStart" tags="" position="800,450" size="100,100">Welcome to the hive, newborn. This is your queen speaking. Do not worry, you no longer need to think or act for yourself, you will now be my emissary and your body will obey my commands. Your goal is simple, hunt down the naive scientists seeking to develop a &quot;cure&quot; to my glorious blessing. You need not fear them, for they are weak and you are strong. However, their technology has enabled them to create an antidote to my blessing. It may take you multiple attempts to fully convert one of them to our flock.
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="ZombieStart" tags="" position="750,550" size="100,100">You awaken from the blackness of death with a start. You are weak, but manage to stand on wobbly legs, finding your sense of direction and ability to move severly hindered. Only one thought pounds against your rotting brain:
 
-Are you prepared to spread my blessing across all of humanity?
+MUST. EAT. BRAINS. 
 
 &lt;&lt;link &quot;Proceed&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RoleSelect" tags="" position="600,450" size="100,100">Welcom, $playerName! &lt;&lt;print $locationMessage&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RoleSelect" tags="" position="600,425" size="100,100">Welcom, $playerName! &lt;&lt;print $locationMessage&gt;&gt;
 
 Welcome to the Zombie Apocaplypse game! To begin, please select your role.
 
 &lt;&lt;link &quot;Scientist&quot;&gt;&gt;
 	&lt;&lt;set State.variables.role to &quot;Scientist&quot;&gt;&gt;
-    &lt;&lt;run sendPOIData()&gt;&gt;
 	&lt;&lt;goto &quot;ScientistStart&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
 &lt;&lt;link &quot;Zombie&quot;&gt;&gt;
 	&lt;&lt;set State.variables.role to &quot;Zombie&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieStart&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="ScientistInstructions" tags="" position="50,600" size="100,100">GAMEPLAY INSTRUCTIONS
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="ScientistInstructions" tags="" position="1000,800" size="100,100">GAMEPLAY INSTRUCTIONS
 
 GOAL: As a scientist, you will be provided hints by your dispatch (the project researchers) as to the locations of antidote items. It is up to you to figure out the solutions to these hints and navigate to the location of your antidote items. Once you or your team have collected all 3 antidote items, you win. Due to modern communication technologies, you are able to contact your dispatch and any other members of your research team at any time.
 
@@ -346,7 +347,7 @@ THREATS: The zombie players will be hunting you in order to stop your progress o
 
 &lt;&lt;link &quot;I&#39;m ready.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ScientistGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="StoryInit" tags="" position="600,200" size="100,100">&lt;!-- Global Variables --&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="StoryInit" tags="" position="600,125" size="100,100">&lt;!-- Global Variables --&gt;
 &lt;&lt;set $locationMessage to &quot;Null&quot;&gt;&gt;
 
 &lt;!-- Scientist Variables --&gt;
@@ -357,7 +358,7 @@ THREATS: The zombie players will be hunting you in order to stop your progress o
 &lt;&lt;set $movementValue to 0&gt;&gt;
 &lt;&lt;set $directionValue to 0&gt;&gt;
 &lt;&lt;set $directionMessage to &quot;You have not determined a direction&quot;&gt;&gt;
-&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="975,600" size="100,100">GAMEPLAY INSTRUCTIONS
+&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="1000,600" size="100,100">GAMEPLAY INSTRUCTIONS
 
 GOAL: As a zombie, your goal is to infect all 
 
@@ -367,7 +368,7 @@ THREATS: You are the threat.
 
 &lt;&lt;link &quot;I&#39;m ready.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="ScientistGameplay" tags="" position="300,600" size="100,100">Current number of samples: &lt;&lt;print State.variables.sampleCount&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="ScientistGameplay" tags="" position="450,700" size="100,100">Current number of samples: &lt;&lt;print State.variables.sampleCount&gt;&gt;
 Remaining antidotes: $antidoteCount
 
 ACTIONS:
@@ -377,7 +378,12 @@ ACTIONS:
 	&lt;&lt;goto &quot;Searching&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;link &quot;I need a hint!&quot;&gt;&gt;
+&lt;&lt;link &quot;My colleague found a vaccine sample!&quot;&gt;&gt;
+	&lt;&lt;set State.variables.sampleCount to State.variables.sampleCount + 1&gt;&gt;
+    &lt;&lt;goto &quot;ScientistGameplay&quot;&gt;&gt;
+&lt;&lt;/link&gt;&gt;
+
+&lt;&lt;link &quot;Request hint from dispatch.&quot;&gt;&gt;
 	&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;
     &lt;&lt;goto &quot;HintProcessing&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;
@@ -395,26 +401,27 @@ ACTIONS:
 
 &lt;&lt;if State.variables.sampleCount == 4&gt;&gt;
 	&lt;&lt;goto &quot;ScientistSuccess&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="ScientistDeath" tags="" position="475,750" size="100,100">Your vision blurs as you feel the zombie virus course through your veins. Your thoughts fade, and are replaced by a voice from an unknown woman...
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="ScientistDeath" tags="" position="550,1000" size="100,100">Your vision blurs as you feel the zombie virus course through your veins. Your thoughts fade, and are replaced by a voice from an unknown woman...
 
 &lt;&lt;link &quot;Become a zombie.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieStart&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="ScientistSuccess" tags="" position="300,750" size="100,100">You&#39;ve done it, Doctor! We have secured enough antibody samples to produce a vaccine and eradicate the zombie virus from Earth! Your name will go down in history as one of the key individuals in defending humanity from extinction.</tw-passagedata><tw-passagedata pid="10" name="ZombieGameplay" tags="" position="800,600" size="100,100">ACTIONS:
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="ScientistSuccess" tags="" position="350,1000" size="100,100">You&#39;ve done it, Doctor! We have secured enough antibody samples to produce a vaccine and eradicate the zombie virus from Earth! Your name will go down in history as one of the key individuals in defending humanity from extinction.</tw-passagedata><tw-passagedata pid="10" name="ZombieGameplay" tags="" position="750,700" size="100,100">ACTIONS:
 
 &lt;&lt;print $directionMessage&gt;&gt;
 &lt;&lt;link &quot;Roll to determine your direction.&quot;&gt;&gt;
+	&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;
 	&lt;&lt;set $directionValue = Math.floor(Math.random() * 6) + 1&gt;&gt;
     &lt;&lt;if $directionValue == 1&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face $landmark1&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;You face North.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 2&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face $landmark2&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;You face East.&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 3&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face $landmark3&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;You face South.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 4&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face $landmark4&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;You face West.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 5&gt;&gt;
     	&lt;&lt;set $directionMessage to &quot;You face the nearest scientist.&quot;&gt;&gt;
@@ -428,6 +435,7 @@ ACTIONS:
 
 &lt;&lt;print $movementMessage&gt;&gt;
 &lt;&lt;link &quot;Roll for movement.&quot;&gt;&gt;
+	&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;
 	&lt;&lt;set $movementValue = Math.floor(Math.random() * 6) + 1&gt;&gt;
     &lt;&lt;if $movementValue == 1&gt;&gt;
     	&lt;&lt;set $movementMessage to &quot;You tripped over loose debris as you began to move. You may move 1 step.&quot;&gt;&gt;
@@ -452,7 +460,7 @@ ACTIONS:
 
 &lt;&lt;link &quot;All of the scientists have been converted!&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieSuccess&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="800,750" size="100,100">Well done, newborn. Thanks to your efforts my gift shall cover these lands and all of humanity will be blessed like you.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,325" size="100,100">Hello, and welcom to the CANIS Zombie Game!
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcom to the CANIS Zombie Game!
 
 Please start by entering your name in the box below.
 &lt;&lt;textbox &quot;$playerName&quot; YourName&gt;&gt;
@@ -471,9 +479,9 @@ Please start by entering your name in the box below.
     &lt;&lt;else&gt;&gt;
     	&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;
-&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="Searching" tags="" position="450,525" size="100,100">You are searching the area...
+&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="Searching" tags="" position="350,850" size="100,100">You are searching the area...
 
-&lt;&lt;run requestPOICheck()&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="NoLocation" tags="" position="750,325" size="100,100">Sorry $playerName, something went wrong as we attempted to locate you in one of our play areas. Please use the link below to re-check your location.
+&lt;&lt;run requestPOICheck()&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="NoLocation" tags="" position="725,275" size="100,100">Sorry $playerName, something went wrong as we attempted to locate you in one of our play areas. Please use the link below to re-check your location.
 
 If the issue persists, please ensure that you have location services enabled on your device and that you have granted the NAUIMG app access to location data.
 
@@ -491,7 +499,7 @@ If the issue persists, please ensure that you have location services enabled on 
     &lt;&lt;else&gt;&gt;
     	&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="HintProcessing" tags="" position="450,650" size="100,100">Hint processing...
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="HintProcessing" tags="" position="550,850" size="100,100">Hint processing...
 
 &lt;&lt;run requestHint()&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">

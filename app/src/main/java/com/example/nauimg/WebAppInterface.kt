@@ -11,7 +11,11 @@ import com.google.android.gms.maps.model.LatLng
 import org.json.JSONArray
 
 // WebAppInterface and related methods for communicating between Android and JS
-class WebAppInterface(private val context: Context, private val firestore: FirebaseFirestore, private val sessionId: String, private val locationService: LocationService) {
+class WebAppInterface(private val context: Context, private val firestore: FirebaseFirestore, private val sessionId: String, private var locationService: LocationService?) {
+
+    fun updateLocationService(service: LocationService) {
+        this.locationService = service
+    }
 
     // Generate random metrics and return as JSON string
     @JavascriptInterface
@@ -102,12 +106,16 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
     @JavascriptInterface
     fun POICheck() {
         Log.d("POICheck", "POICheck requested from JS.")
-        locationService.waitForLocationUpdate()
+        locationService?.let {
+            it.waitForLocationUpdate()
+        } ?: Log.e("WebAppInterface", "LocationService is not initialized")
     }
     @JavascriptInterface
     fun requestHint() {
         Log.d("WebAppInterface", "Hint requested from JS.")
-        locationService.waitForHintLocationUpdate()
+        locationService?.let {
+            it.waitForHintLocationUpdate()
+        } ?: Log.e("WebAppInterface", "LocationService is not initialized")
     }
 
 

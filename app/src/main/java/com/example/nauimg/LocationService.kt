@@ -308,6 +308,7 @@ class LocationService : Service(), SensorEventListener {
                 val distance = haversine(it.latitude, it.longitude, poi.latitude, poi.longitude)
                 if (distance <= 7.0) {
                     iterator.remove()  // Remove the POI from the list
+                    stopVibration()    // Reset the vibration after collecting a POI
                     return true
                 }
             }
@@ -337,10 +338,10 @@ class LocationService : Service(), SensorEventListener {
                 val relativeBearing = (bearingToPoi - azimuth + 360) % 360
 
                 hint = when {
-                    relativeBearing < 45 || relativeBearing > 315 -> "Move forward!"
-                    relativeBearing in 45.0..135.0 -> "Turn right and move forward!"
-                    relativeBearing in 135.0..225.0 -> "Turn around and move forward!"
-                    relativeBearing in 225.0..315.0 -> "Turn left and move forward!"
+                    relativeBearing < 45 || relativeBearing > 315 -> "The nearest vaccine sample is somewhere in front of you!"
+                    relativeBearing in 45.0..135.0 -> "The nearest vaccine sample is somewhere to your right!"
+                    relativeBearing in 135.0..225.0 -> "The nearest vaccine sample is somewhere behind you!"
+                    relativeBearing in 225.0..315.0 -> "The nearest vaccine sample is somewhere to your left!"
                     else -> "Unable to determine direction, try moving around."
                 }
             }
@@ -358,6 +359,7 @@ class LocationService : Service(), SensorEventListener {
 
     private fun stopVibration() {
         handler?.removeCallbacksAndMessages(null)
+        isVibrating = false
         vibrator.cancel()
         Log.d("VibrationService", "Vibration handler stopped and vibration canceled.")
     }
@@ -405,6 +407,13 @@ class LocationService : Service(), SensorEventListener {
 
         // Determine which range the current distance falls into
         val newRange = delayRanges.keys.firstOrNull { range -> distance.toInt() in range }
+
+        // If no POIs are in range, stop vibration
+        if (newRange == null) {
+            stopVibration()
+            Log.d("VibrationService", "No POIs within max distance. Stopping vibration.")
+            return
+        }
 
         // Only update the vibration pattern if the user has crossed into a new range
         if (newRange != currentRange) {
@@ -500,26 +509,20 @@ class LocationService : Service(), SensorEventListener {
         super.onDestroy()
         sensorManager.unregisterListener(this) // Unregister sensor listeners
         handler?.removeCallbacksAndMessages(null)
-        cancelVibration()
+        stopVibration()
         stopLocationUpdates()
         handlerThread.quitSafely()
         Log.d("LocationService", "Service destroyed")
     }
 
-    private fun cancelVibration() {
-        val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-        vibrator.cancel()
-        Log.d("VibrationService", "Vibration canceled")
-    }
-
     override fun onBind(intent: Intent): IBinder {
         return binder
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        stopVibration()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

@@ -287,10 +287,10 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
 &lt;&lt;if $urbanLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 1 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The FIRST of two sponsors of the little library in the square.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_ULH1&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_ULH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH1.trim().toLowerCase() == &quot;basis flagstaff&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint1 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -304,10 +304,10 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
 &lt;&lt;if $urbanLocation_Hint2&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The name of the sinful burger joint near the square.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_ULH2&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_ULH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH2.trim().toLowerCase() == &quot;diablo burger&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint2 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -321,10 +321,10 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
 &lt;&lt;if $urbanLocation_Hint3&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;There is a cat sculpture somewhere in Heritage Square. What is the name of the SECOND artist listed for it?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_ULH3&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_ULH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH3.trim().toLowerCase() == &quot;sara hooker&quot;&gt;&gt;
         	&lt;&lt;set $urbanLocation_Hint3 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -335,7 +335,24 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $urbanLocation_Hint1 and $urbanLocation_Hint2 and $urbanLocation_Hint3&gt;&gt;
+&lt;&lt;if $urbanLocation_Hint4&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;The Native American tribe that has a building in Heritage Square bearing their name.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH4&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_ULH4.trim().toLowerCase() == &quot;hopi&quot;&gt;&gt;
+        	&lt;&lt;set $urbanLocation_Hint4 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ4&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $urbanLocation_Hint1 and $urbanLocation_Hint2 and $urbanLocation_Hint3 and $urbanLocation_Hint4&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_UL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 </tw-passagedata><tw-passagedata pid="3" name="RuralLocation" tags="" position="1200,500" size="100,100">Nice to meet you, $playerName!
@@ -345,10 +362,10 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
 &lt;&lt;if $ruralLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 1 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the artist who made the yellow sculpture?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_RLH1&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_RLH1.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH1.trim().toLowerCase() == &quot;dan namingha&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint1 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -362,10 +379,10 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
 &lt;&lt;if $ruralLocation_Hint2&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the trail just outside the entrance?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_RLH2&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_RLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH2.trim().toLowerCase() == &quot;rio de flag&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint2 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -379,10 +396,10 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
 &lt;&lt;if $ruralLocation_Hint3&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The trail from hint 2 has 3 different loops. What is the name of the loop that follows the streambed between rock walls?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_RLH3&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_RLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH3.trim().toLowerCase() == &quot;canyon loop&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint3 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -393,7 +410,24 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $ruralLocation_Hint1 and $ruralLocation_Hint2 and $ruralLocation_Hint3&gt;&gt;
+&lt;&lt;if $ruralLocation_Hint4&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the individual who donated the land to the museum? Hint: Flagpole&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH4&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_RLH4.trim().toLowerCase() == &quot;mary-russell ferrell colton&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint4 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ4&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $ruralLocation_Hint1 and $ruralLocation_Hint2 and $ruralLocation_Hint3 and $ruralLocation_Hint4&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_RL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 </tw-passagedata><tw-passagedata pid="4" name="NoLocation" tags="" position="1000,300" size="100,100">Sorry $playerName, we have not detected you in any of our interest locations. Please re-check your location using the link below. 
@@ -437,10 +471,10 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 &lt;&lt;if $campusLocation_Hint2&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 2 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;When facing the entrance to SICCS there is a poster advertising a lab. What is the name of the lab being advertised?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH2&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_CLH2.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_CLH2.trim().toLowerCase() == &quot;ampere&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint2 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -454,10 +488,10 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 &lt;&lt;if $campusLocation_Hint3&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;Hint 3 goes here.&quot;&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the street that runs perpendicular to SICCS? This street shares its name with the nearby parking garage.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH3&quot; Answer&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-    	&lt;&lt;if $entry_CLH3.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+    	&lt;&lt;if $entry_CLH3.trim().toLowerCase() == &quot;knowles&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint3 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ3&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -468,7 +502,24 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3&gt;&gt;
+&lt;&lt;if $campusLocation_Hint4&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Hint 4 goes here.&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH4&quot; Answer&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    	&lt;&lt;if $entry_CLH4.trim().toLowerCase() == &quot;temp&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint4 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ4&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3 and $campusLocation_Hint4&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_CL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
@@ -476,8 +527,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CorrectResponse_CL" tags="" position="300,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned 100 points!
-Your current score is now &lt;&lt;print $score&gt;&gt;.
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CorrectResponse_CL" tags="" position="300,700" size="100,100">Well done $playerName, that answer was correct!.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
@@ -487,8 +537,7 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 	&lt;&lt;run displayMetrics()&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
-&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CorrectResponse_RL" tags="" position="1100,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned 100 points!
-Your current score is now &lt;&lt;print $score&gt;&gt;.
+&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CorrectResponse_RL" tags="" position="1100,700" size="100,100">Well done $playerName, that answer was correct!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
@@ -502,8 +551,7 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="CorrectResponse_UL" tags="" position="700,700" size="100,100">Well done $playerName, that answer was correct! You&#39;ve earned 100 points!
-Your current score is now &lt;&lt;print $score&gt;&gt;.
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="CorrectResponse_UL" tags="" position="700,700" size="100,100">Well done $playerName, that answer was correct!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;UrbanLocation&quot;&gt;&gt;
@@ -517,16 +565,7 @@ Your current score is now &lt;&lt;print $score&gt;&gt;.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;UrbanLocation&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="HintsComplete_CL" tags="" position="400,900" size="100,100">Well done $playerName, you have correctly answered all the hints for the Campus Location!
-
-// Display final leaderboard
-// Place user at the top</tw-passagedata><tw-passagedata pid="13" name="HintsComplete_RL" tags="" position="1200,900" size="100,100">Well done $playerName, you have correctly answered all the hints for the Rural Location!
-
-// Display final leaderboard
-// Place user at the top</tw-passagedata><tw-passagedata pid="14" name="HintsComplete_UL" tags="" position="800,900" size="100,100">Well done $playerName you have correctly answered all the hints for the Urban Location!
-
-// Display final leaderboard
-// Place user at the top</tw-passagedata><tw-passagedata pid="15" name="StoryInit" tags="" position="800,100" size="100,100">/* Score tracker */
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="HintsComplete_CL" tags="" position="400,900" size="100,100">Well done $playerName, you have correctly answered all the hints for the Campus Location!</tw-passagedata><tw-passagedata pid="13" name="HintsComplete_RL" tags="" position="1200,900" size="100,100">Well done $playerName, you have correctly answered all the hints for the Rural Location!</tw-passagedata><tw-passagedata pid="14" name="HintsComplete_UL" tags="" position="800,900" size="100,100">Well done $playerName you have correctly answered all the hints for the Urban Location!</tw-passagedata><tw-passagedata pid="15" name="StoryInit" tags="" position="800,100" size="100,100">/* Score tracker */
 &lt;&lt;set $score to 0&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
 	/*! SugarCube JS */

@@ -23,7 +23,9 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var sessionId: String
     private var locationService: LocationService? = null
+    private var webAppInterface: WebAppInterface? = null
     private var isBound = false
+
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as LocationService.LocalBinder
@@ -33,8 +35,8 @@ class WebViewActivity : AppCompatActivity() {
             // Pass the WebView instance to the LocationService
             locationService?.setWebView(webView)
 
-            // Add the Javascript Interface after the locationService is guaranteed to be initialized
-            webView.addJavascriptInterface(WebAppInterface(this@WebViewActivity, firestore, sessionId, locationService!!), "AndroidBridge")
+            // Update the WebAppInterface with the locationService instance
+            webAppInterface?.updateLocationService(locationService!!)
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -72,6 +74,10 @@ class WebViewActivity : AppCompatActivity() {
                 callback.invoke(origin, true, false)
             }
         }
+
+        // Add the Javascript Interface after the locationService is guaranteed to be initialized
+        webAppInterface = WebAppInterface(this, firestore, sessionId, null)
+        webView.addJavascriptInterface(webAppInterface!!, "AndroidBridge")
 
         // Load HTML file specified in the intent
         val filename = intent.getStringExtra("FILENAME")

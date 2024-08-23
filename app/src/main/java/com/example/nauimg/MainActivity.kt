@@ -5,30 +5,28 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.view.View
-import android.widget.AdapterView
 import android.widget.Button
-import android.widget.Spinner
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import android.widget.ArrayAdapter
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import android.provider.Settings
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 
 // MainActivity class extends AppCompatActivity
 class MainActivity : AppCompatActivity() {
     // Initialize variables
-    private lateinit var gameSpinner: Spinner
+    private lateinit var gameRecyclerView: RecyclerView
     private lateinit var launchButton: Button
-    private lateinit var stcButton: Button
     private lateinit var viewModel: MainViewModel
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
+    private var selectedGame: String? = null
 
     // Called when the activity is first created
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,73 +41,54 @@ class MainActivity : AppCompatActivity() {
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         // Find views by their IDs
-        gameSpinner = findViewById(R.id.gameSpinner)
+        gameRecyclerView = findViewById(R.id.gameRecyclerView)
         launchButton = findViewById(R.id.launchButton)
-        stcButton = findViewById(R.id.stcButton)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         // Load HTML files from assets folder
         val assetManager = assets
-        val games = assetManager.list("")?.filter { it.endsWith(".html") } ?: emptyList()
+        val gameLabels = mapOf(
+            "ScavengerHunt.html" to "Scavenger Hunt",
+            "Zombie Apocalypse.html" to "Zombie Apocalypse"
+        )
 
-        // Set up spinner with the list of games
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, games)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        gameSpinner.adapter = adapter
+        val games = assetManager.list("")?.filter { it.endsWith(".html") }?.map { fileName ->
+            Game(fileName, gameLabels[fileName] ?: fileName)
+        }?.toMutableList() ?: mutableListOf()
 
-        // Set an item selected listener for the gameSpinner spinner.
-        gameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            // This method is called when an item in the spinner is selected.
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // Update the selectedGame LiveData in the viewModel with the selected item's value.
-                viewModel.selectedGame.value = parent.getItemAtPosition(position) as String
-            }
+        // Add Speedtest activity to the list of games
+        games.add(Game("Speedtest", "Speed Tester"))
 
-            // This method is called when no item is selected in the spinner.
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Set the selectedGame LiveData in the viewModel to null when no item is selected.
-                viewModel.selectedGame.value = null
-            }
+
+
+        // Set up RecyclerView with the list of games
+        val adapter = GameListAdapter(games) { game ->
+            selectedGame = game.fileName
         }
+
+        gameRecyclerView.layoutManager = LinearLayoutManager(this)
+        gameRecyclerView.adapter = adapter
+
 
         // Set click listener for launch button
         launchButton.setOnClickListener {
             if (sessionId != null) {
-                viewModel.selectedGame.value?.let { game ->
-                    val intent = Intent(this, WebViewActivity::class.java).apply {
-                        putExtra("FILENAME", game)
-                        putExtra("SESSION_ID", sessionId)
+                selectedGame?.let { gameFileName ->
+                    val intent = if (gameFileName == "Speedtest") {
+                        Intent(this, SpeedTestClone::class.java).apply {
+                            putExtra("SESSION_ID", sessionId)
+                        }
+                    } else {
+                        Intent(this, WebViewActivity::class.java).apply {
+                            putExtra("FILENAME", gameFileName)
+                            putExtra("SESSION_ID", sessionId)
+                        }
                     }
                     startActivity(intent)
                 }
             } else {
                 Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Set click listener for the Speedtester button
-        stcButton.setOnClickListener {
-            if (sessionId != null) {
-                val intent = Intent(this, SpeedTestClone::class.java).apply {
-                    putExtra("SESSION_ID", sessionId)
-                }
-                    startActivity(intent)
-
-            } else {
-                Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Observe changes in the selectedGame LiveData in the viewModel.
-        viewModel.selectedGame.observe(this) { game: String? ->
-            // Find the position of the selected game in the games list.
-            val position = games.indexOf(game)
-
-            // Check if the game is found in the list.
-            if (position >= 0) {
-                // Set the selection of the gameSpinner to the position of the selected game.
-                gameSpinner.setSelection(position)
             }
         }
 
@@ -125,28 +104,37 @@ class MainActivity : AppCompatActivity() {
         val input = EditText(this)
         builder.setView(input)
 
-        builder.setPositiveButton("OK") { dialog, _ ->
-            sessionId = input.text.toString()
-            createSession(sessionId!!)
-            dialog.dismiss()
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.cancel()
+        builder.setPositiveButton("OK", null) // Pass null to override automatic dismissal
+
+        val dialog = builder.create()
+
+        dialog.setOnShowListener {
+            val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            okButton.setOnClickListener {
+                val enteredId = input.text.toString().trim()
+                if (enteredId.isEmpty()) {
+                    Toast.makeText(this, "Session ID cannot be empty. Please enter a valid ID.", Toast.LENGTH_SHORT).show()
+                } else {
+                    sessionId = enteredId
+                    createSession(sessionId!!)
+                    dialog.dismiss()
+                }
+            }
         }
 
-        builder.show()
+        dialog.show()
     }
 
     private fun createSession(sessionId: String) {
         Log.d("MainActivity", "Creating session with ID: $sessionId")
         val sessionRef = firestore.collection("Movement Data").document(sessionId)
-        val deviceIds = listOf("a315f9b4e6403e14", "0371849f3bd4068e", "ed7f11200cba4493")
+        val deviceIds = listOf("eceae5a981c05fbe", "0371849f3bd4068e", "8f0d163fb6bc0b2f","a315f9b4e6403e14")
         for (deviceId in deviceIds) {
-            val deviceRef = sessionRef.collection(deviceId)
+            val deviceRef = sessionRef.collection("Devices").document(deviceId)
             val initialData: Map<String, Any> = hashMapOf("initialized" to true)
-            deviceRef.document("initial").set(initialData)
+            deviceRef.set(initialData)
                 .addOnSuccessListener {
-                    Log.d("MainActivity", "DocumentSnapshot added with ID: $deviceId/initial")
+                    Log.d("MainActivity", "DocumentSnapshot added with ID: $deviceId")
                 }
                 .addOnFailureListener { e: Exception ->
                     Log.e("MainActivity", "Error adding document", e)
@@ -155,7 +143,7 @@ class MainActivity : AppCompatActivity() {
             // Create Check Data and Location Data documents
             val checkDataDoc: Map<String, Any> = hashMapOf()
             val locationDataDoc: Map<String, Any> = hashMapOf()
-            deviceRef.document("Check Data").set(checkDataDoc)
+            deviceRef.collection("Data").document("Check Data").set(checkDataDoc)
                 .addOnSuccessListener {
                     Log.d("MainActivity", "Check Data document created for $deviceId")
                 }
@@ -163,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     Log.e("MainActivity", "Error creating Check Data document", e)
                 }
 
-            deviceRef.document("Location Data").set(locationDataDoc)
+            deviceRef.collection("Data").document("Location Data").set(locationDataDoc)
                 .addOnSuccessListener {
                     Log.d("MainActivity", "Location Data document created for $deviceId")
                 }

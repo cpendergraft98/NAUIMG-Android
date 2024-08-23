@@ -378,10 +378,10 @@ class LocationService : Service(), SensorEventListener {
         }
 
         val locationUpdatesRef = firestore.collection("Movement Data").document(sessionId!!)
-            .collection(androidId).document("Location Data").collection("Data")
+            .collection("Devices").document(androidId).collection("Data").document("Location Data")
 
         // Add a new document with a generated ID
-        locationUpdatesRef.add(locationData)
+        locationUpdatesRef.collection("LocationDataSub").add(locationData)
             .addOnSuccessListener { documentReference ->
                 Log.d("LocationService", "Location data added with ID: ${documentReference.id}")
             }

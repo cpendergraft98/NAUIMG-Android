@@ -61,11 +61,11 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
             val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             Log.d("WebAppInterface", "Android ID: $androidId")
 
-            // Reference to the device's Check Data subcollection in Firestore
+            // Reference to the device's Check Data subcollection in Firestore within the Devices collection
             val checkDataRef = firestore.collection("Movement Data").document(sessionId)
-                .collection(androidId).document("Check Data").collection("Data")
+                .collection("Devices").document(androidId).collection("Data").document("Check Data")
 
-            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/$androidId/Check Data/CheckDataSub")
+            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/Devices/$androidId/Data/Check Data")
 
             // Convert JSON object to Map
             val dataMap = jsonToMap(jsonObject)
@@ -74,7 +74,7 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
             val checkId = generateCheckId()
 
             // Add data to Firestore with custom document ID
-            checkDataRef.document(checkId).set(dataMap)
+            checkDataRef.collection("CheckDataSub").document(checkId).set(dataMap)
                 .addOnSuccessListener {
                     Log.d("WebAppInterface", "DocumentSnapshot added with ID: $checkId")
                 }

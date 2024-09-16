@@ -262,7 +262,7 @@ window.requestHint = function() {
 
 window.receiveHint = function(hint) {
   console.log("Hint received from Android: " + hint);
-  alert(hint);
+  alert("The nearest vaccine sample " + hint);
   Engine.play("ScientistGameplay", false, function() {});
 };
 
@@ -319,13 +319,17 @@ Are you prepared to put your life on the line to save human civilization?
 &lt;&lt;link &quot;Proceed&quot;&gt;&gt;
 	&lt;&lt;run sendPOIData()&gt;&gt;
 	&lt;&lt;goto &quot;ScientistGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="ZombieStart" tags="" position="750,550" size="100,100">You awaken from the blackness of death with a start. You are weak, but manage to stand on wobbly legs, finding your sense of direction and ability to move severly hindered. Only one thought pounds against your rotting brain:
+&lt;&lt;/link&gt;&gt;
+
+[[First time playing? Check out the instructions!|ScientistInstructions]]</tw-passagedata><tw-passagedata pid="2" name="ZombieStart" tags="" position="750,550" size="100,100">You awaken from the blackness of death with a start. You are weak, but manage to stand on wobbly legs, finding your sense of direction and ability to move severly hindered. Only one thought pounds against your rotting brain:
 
 MUST. EAT. BRAINS. 
 
 &lt;&lt;link &quot;Proceed&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RoleSelect" tags="" position="600,425" size="100,100">Welcom, $playerName! &lt;&lt;print $locationMessage&gt;&gt;
+&lt;&lt;/link&gt;&gt;
+
+[[First time playing as a Zombie? Check out the instructions!|ZombieInstructions]]</tw-passagedata><tw-passagedata pid="3" name="RoleSelect" tags="" position="600,425" size="100,100">Welcome, $playerName! &lt;&lt;print $locationMessage&gt;&gt;
 
 Welcome to the Zombie Apocaplypse game! To begin, please select your role.
 
@@ -337,15 +341,20 @@ Welcome to the Zombie Apocaplypse game! To begin, please select your role.
 &lt;&lt;link &quot;Zombie&quot;&gt;&gt;
 	&lt;&lt;set State.variables.role to &quot;Zombie&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieStart&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="ScientistInstructions" tags="" position="1000,800" size="100,100">GAMEPLAY INSTRUCTIONS
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="ScientistInstructions" tags="" position="250,550" size="100,100">GAMEPLAY INSTRUCTIONS
 
-GOAL: As a scientist, you will be provided hints by your dispatch (the project researchers) as to the locations of antidote items. It is up to you to figure out the solutions to these hints and navigate to the location of your antidote items. Once you or your team have collected all 3 antidote items, you win. Due to modern communication technologies, you are able to contact your dispatch and any other members of your research team at any time.
+GOAL: As a scientist, your goal is to collect 4 vaccine samples before your team is wiped out by the zombies. When you progress to the main gameplay page your device will begin vibrating at regular intervals. The more rapid these pulses, the closer you are to one of the vaccine samples. If your device is not vibrating at all then you are not near any of the interest points. In this case, you should Request a Hint to get an idea of where the nearest vaccine sample is in relation to you. You can request hints as many times as you would like, so don&#39;t be afraid to press that button!
+
+Once you feel as if you are as close as you can be to one of the vaccine samples you can attempt to search the area for it. If you find one you will be notified, but if not you will need to explore further to find it. There is no punishment for searching and finding nothing. You will not be told when the device reaches its peak vibration frequency, so you have to use your intuition to determine when it is time to search.
+
+If you are playing in teams and one of your teammates finds a vaccine sample, you can press the &quot;My colleague found a sample!&quot; button to increment your own vaccine sample count.
 
 MOVEMENT: You will have to role dice to determine the number of steps you can take in your chosen direction. There are no turn restrictions in this game, so you may roll your dice and move as frequently as you want, so long as you adhere to the number of steps you are instructed to take on each dice roll
 
 THREATS: The zombie players will be hunting you in order to stop your progress on making a cure. If you are struck by a zombie, you must utilize one of your antidotes to prevent infection. However, you are only provided 2 of these antidotes by the Coalition, so being struck three times will turn you into a zombie. At this point, you will be playing for the other team. 
 
 &lt;&lt;link &quot;I&#39;m ready.&quot;&gt;&gt;
+	&lt;&lt;run sendPOIData()&gt;&gt;
 	&lt;&lt;goto &quot;ScientistGameplay&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="StoryInit" tags="" position="600,125" size="100,100">&lt;!-- Global Variables --&gt;
 &lt;&lt;set $locationMessage to &quot;Null&quot;&gt;&gt;
@@ -358,11 +367,13 @@ THREATS: The zombie players will be hunting you in order to stop your progress o
 &lt;&lt;set $movementValue to 0&gt;&gt;
 &lt;&lt;set $directionValue to 0&gt;&gt;
 &lt;&lt;set $directionMessage to &quot;You have not determined a direction&quot;&gt;&gt;
-&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="1000,600" size="100,100">GAMEPLAY INSTRUCTIONS
+&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="925,550" size="100,100">GAMEPLAY INSTRUCTIONS
 
-GOAL: As a zombie, your goal is to infect all 
+GOAL: Your only goal is to wipe out the scientists attempting to cure the zombie plague.
 
-MOVEMENT:
+MOVEMENT: Zombie movement is dividing into two mechanisms. Your first die is used to determine which direction you face, and your second die determine how many steps you take in the direction you&#39;re facing. It is important to note that you don&#39;t have to roll both die every turn. If you are facing a direction you like you can just repeatedly roll your second die to walk. The opposite also works - If you are trying to face a specific direction you can roll your direction die repeatedly until you are facing the desired direction.
+
+If you find yourself facing a scientist and you roll a 6, you will have the option to attack that scientist. They will have to exhaust one of their antidote samples in order to survive the attack. If they have none left you will convert them to a zombie and increase the size of your team by 1. 
 
 THREATS: You are the threat.
 
@@ -412,16 +423,16 @@ ACTIONS:
 	&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;
 	&lt;&lt;set $directionValue = Math.floor(Math.random() * 6) + 1&gt;&gt;
     &lt;&lt;if $directionValue == 1&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face North.&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;Rotate to your right.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 2&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face East.&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;Rotate to your left.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 3&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face South.&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;Rotate to your right.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 4&gt;&gt;
-    	&lt;&lt;set $directionMessage to &quot;You face West.&quot;&gt;&gt;
+    	&lt;&lt;set $directionMessage to &quot;Rotate to your left.&quot;&gt;&gt;
         &lt;&lt;goto &quot;ZombieGameplay&quot;&gt;&gt;
     &lt;&lt;elseif $directionValue == 5&gt;&gt;
     	&lt;&lt;set $directionMessage to &quot;You face the nearest scientist.&quot;&gt;&gt;
@@ -460,7 +471,7 @@ ACTIONS:
 
 &lt;&lt;link &quot;All of the scientists have been converted!&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieSuccess&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcom to the CANIS Zombie Game!
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcome to NetGauge&#39;s Zombie Apocalypse Game!
 
 Please start by entering your name in the box below.
 &lt;&lt;textbox &quot;$playerName&quot; YourName&gt;&gt;

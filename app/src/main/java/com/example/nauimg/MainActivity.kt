@@ -37,9 +37,6 @@ class MainActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         FirebaseFirestore.setLoggingEnabled(true) // Enable Firestore logging
 
-        // Store Android ID for research purposes. Ignore warning
-        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
-
         // Find views by their IDs
         gameRecyclerView = findViewById(R.id.gameRecyclerView)
         launchButton = findViewById(R.id.launchButton)
@@ -50,7 +47,8 @@ class MainActivity : AppCompatActivity() {
         val assetManager = assets
         val gameLabels = mapOf(
             "ScavengerHunt.html" to "Scavenger Hunt",
-            "Zombie Apocalypse.html" to "Zombie Apocalypse"
+            "Zombie Apocalypse.html" to "Zombie Apocalypse",
+            "Soul Seeker.html" to "Soul Seeker"
         )
 
         val games = assetManager.list("")?.filter { it.endsWith(".html") }?.map { fileName ->

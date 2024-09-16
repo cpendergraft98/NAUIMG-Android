@@ -338,10 +338,10 @@ class LocationService : Service(), SensorEventListener {
                 val relativeBearing = (bearingToPoi - azimuth + 360) % 360
 
                 hint = when {
-                    relativeBearing < 45 || relativeBearing > 315 -> "The nearest vaccine sample is somewhere in front of you!"
-                    relativeBearing in 45.0..135.0 -> "The nearest vaccine sample is somewhere to your right!"
-                    relativeBearing in 135.0..225.0 -> "The nearest vaccine sample is somewhere behind you!"
-                    relativeBearing in 225.0..315.0 -> "The nearest vaccine sample is somewhere to your left!"
+                    relativeBearing < 45 || relativeBearing > 315 -> "is somewhere in front of you!"
+                    relativeBearing in 45.0..135.0 -> "is somewhere to your right!"
+                    relativeBearing in 135.0..225.0 -> "is somewhere behind you!"
+                    relativeBearing in 225.0..315.0 -> "is somewhere to your left!"
                     else -> "Unable to determine direction, try moving around."
                 }
             }

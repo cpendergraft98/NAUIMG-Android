@@ -1,9 +1,11 @@
 package com.example.nauimg
 
 import android.Manifest
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.widget.Button
 import androidx.core.app.ActivityCompat
@@ -12,6 +14,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import android.provider.Settings
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,9 +26,12 @@ class MainActivity : AppCompatActivity() {
     // Initialize variables
     private lateinit var gameRecyclerView: RecyclerView
     private lateinit var launchButton: Button
+    private lateinit var updateSessionButton: Button
+    private lateinit var sessionTextView: TextView
     private lateinit var viewModel: MainViewModel
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
+    private lateinit var prefs: SharedPreferences
     private var selectedGame: String? = null
 
     // Called when the activity is first created
@@ -33,13 +39,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize Firestore
+        // Initialize Firestore and SharedPreferences
         firestore = FirebaseFirestore.getInstance()
         FirebaseFirestore.setLoggingEnabled(true) // Enable Firestore logging
+        prefs = getSharedPreferences("SessionPrefs", Context.MODE_PRIVATE)
 
         // Find views by their IDs
         gameRecyclerView = findViewById(R.id.gameRecyclerView)
         launchButton = findViewById(R.id.launchButton)
+        updateSessionButton = findViewById(R.id.updateSessionButton)
+        sessionTextView = findViewById(R.id.sessionTextView)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
@@ -58,16 +67,22 @@ class MainActivity : AppCompatActivity() {
         // Add Speedtest activity to the list of games
         games.add(Game("Speedtest", "Speed Tester"))
 
-
-
         // Set up RecyclerView with the list of games
         val adapter = GameListAdapter(games) { game ->
             selectedGame = game.fileName
         }
-
         gameRecyclerView.layoutManager = LinearLayoutManager(this)
         gameRecyclerView.adapter = adapter
 
+        // Check if a session ID is already stored
+        sessionId = prefs.getString("sessionId", null)
+        if(sessionId.isNullOrEmpty())
+        {
+            promptForSessionId() // Prompt if no session ID is stored
+        } else {
+            sessionTextView.text = "Current Session ID: $sessionId"
+            startLocationService() // Start the LocationService if Session ID is available.
+        }
 
         // Set click listener for launch button
         launchButton.setOnClickListener {
@@ -76,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = if (gameFileName == "Speedtest") {
                         Intent(this, SpeedTestClone::class.java).apply {
                             putExtra("SESSION_ID", sessionId)
+                            putExtra("selectedGame", gameFileName)
                         }
                     } else {
                         Intent(this, WebViewActivity::class.java).apply {
@@ -84,6 +100,13 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     startActivity(intent)
+
+                    // Pass the selected game name to the LocationService via the intent
+                    val locationServiceIntent = Intent(this, LocationService::class.java).apply {
+                        putExtra("sessionId", sessionId)
+                        putExtra("selectedGame", gameFileName) // Pass the selected game to LocationService
+                    }
+                    startService(locationServiceIntent)
                 }
             } else {
                 Toast.makeText(this, "Please create a session ID first.", Toast.LENGTH_SHORT).show()
@@ -92,7 +115,9 @@ class MainActivity : AppCompatActivity() {
 
         // Check if location permission is granted, if not request permission
         checkLocationPermission()
-        promptForSessionId()
+        updateSessionButton.setOnClickListener {
+            promptForSessionId()
+        }
     }
 
     private fun promptForSessionId() {
@@ -114,7 +139,9 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Session ID cannot be empty. Please enter a valid ID.", Toast.LENGTH_SHORT).show()
                 } else {
                     sessionId = enteredId
-                    createSession(sessionId!!)
+                    saveSessionId(sessionId!!)
+                    sessionTextView.text = "Current Session ID: $sessionId"
+                    startLocationService() // Start the LocationService if session ID is available
                     dialog.dismiss()
                 }
             }
@@ -123,45 +150,10 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun createSession(sessionId: String) {
-        Log.d("MainActivity", "Creating session with ID: $sessionId")
-        val sessionRef = firestore.collection("Movement Data").document(sessionId)
-        val deviceIds = listOf("eceae5a981c05fbe", "0371849f3bd4068e", "8f0d163fb6bc0b2f","a315f9b4e6403e14")
-        for (deviceId in deviceIds) {
-            val deviceRef = sessionRef.collection("Devices").document(deviceId)
-            val initialData: Map<String, Any> = hashMapOf("initialized" to true)
-            deviceRef.set(initialData)
-                .addOnSuccessListener {
-                    Log.d("MainActivity", "DocumentSnapshot added with ID: $deviceId")
-                }
-                .addOnFailureListener { e: Exception ->
-                    Log.e("MainActivity", "Error adding document", e)
-                }
-
-            // Create Check Data and Location Data documents
-            val checkDataDoc: Map<String, Any> = hashMapOf()
-            val locationDataDoc: Map<String, Any> = hashMapOf()
-            deviceRef.collection("Data").document("Check Data").set(checkDataDoc)
-                .addOnSuccessListener {
-                    Log.d("MainActivity", "Check Data document created for $deviceId")
-                }
-                .addOnFailureListener { e: Exception ->
-                    Log.e("MainActivity", "Error creating Check Data document", e)
-                }
-
-            deviceRef.collection("Data").document("Location Data").set(locationDataDoc)
-                .addOnSuccessListener {
-                    Log.d("MainActivity", "Location Data document created for $deviceId")
-                }
-                .addOnFailureListener { e: Exception ->
-                    Log.e("MainActivity", "Error creating Location Data document", e)
-                }
-        }
-
-        // Set the sessionId in the LocationService
-        val locationServiceIntent = Intent(this, LocationService::class.java)
-        locationServiceIntent.putExtra("sessionId", sessionId)
-        startService(locationServiceIntent)
+    private fun saveSessionId(sessionId: String) {
+        val editor = prefs.edit()
+        editor.putString("sessionId", sessionId)
+        editor.apply()
     }
 
     private fun checkLocationPermission() {
@@ -175,9 +167,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLocationService() {
-        Log.d("MainActivity", "Starting LocationService...")
-        val serviceIntent = Intent(this, LocationService::class.java)
-        ContextCompat.startForegroundService(this, serviceIntent)
+        val locationServiceIntent = Intent(this, LocationService::class.java)
+        locationServiceIntent.putExtra("sessionId", sessionId)
+        startService(locationServiceIntent)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

@@ -57,26 +57,27 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
 
             val jsonObject = JSONObject(data)
 
-            // Use the Android ID to identify the device
+            // Add sessionId to the JSON object
+            jsonObject.put("sessionId", sessionId)
+
+            // Use the Android ID to identify the device (for logging, though it's not part of the pathing)
             val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             Log.d("WebAppInterface", "Android ID: $androidId")
 
-            // Reference to the device's Check Data subcollection in Firestore within the Devices collection
-            val checkDataRef = firestore.collection("Movement Data").document(sessionId)
-                .collection("Devices").document(androidId).collection("Data").document("Check Data")
+            // Reference to the Check Data collection in Firestore for the current session
+            val checkDataRef = firestore.collection("Movement Data")
+                .document(sessionId!!)
+                .collection("CheckData")
 
-            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/Devices/$androidId/Data/Check Data")
+            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/CheckData")
 
             // Convert JSON object to Map
             val dataMap = jsonToMap(jsonObject)
 
-            // Generate custom document ID
-            val checkId = generateCheckId()
-
-            // Add data to Firestore with custom document ID
-            checkDataRef.collection("CheckDataSub").document(checkId).set(dataMap)
-                .addOnSuccessListener {
-                    Log.d("WebAppInterface", "DocumentSnapshot added with ID: $checkId")
+            // Add data to Firestore, let Firestore generate the document ID automatically
+            checkDataRef.add(dataMap)
+                .addOnSuccessListener { documentReference ->
+                    Log.d("WebAppInterface", "DocumentSnapshot added with ID: ${documentReference.id}")
                 }
                 .addOnFailureListener { e: Exception ->
                     Log.w("WebAppInterface", "Error adding document", e)

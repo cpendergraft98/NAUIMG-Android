@@ -55,6 +55,7 @@ class LocationService : Service(), SensorEventListener {
 
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
+    private var selectedGame: String? = null
     private lateinit var androidId: String
 
     private lateinit var handlerThread: HandlerThread
@@ -181,8 +182,9 @@ class LocationService : Service(), SensorEventListener {
                 put("longitude", location.longitude)
                 put("azimuth", azimuth) // Include latest azimuth
                 put("direction", direction) // Include latest direction
-                put("origin", "android")
+                put("session", sessionId ?: "Unknown")
                 put("androidId", androidId)
+                put("game", selectedGame ?: "Unknown")
             }
 
             // Hash Map so Firebase has access to data
@@ -192,12 +194,18 @@ class LocationService : Service(), SensorEventListener {
                 "longitude" to location.longitude,
                 "azimuth" to azimuth, // Include latest azimuth
                 "direction" to direction, // Include latest direction
-                "origin" to "android",
-                "androidId" to androidId
+                "session" to (sessionId ?: "Unknown"),
+                "androidId" to androidId,
+                "game" to (selectedGame ?: "Unknown")
             )
 
-            // Append the raw location data to Firestore
-            appendLocationToFirestore(locationDataHM)
+            // Check if the game is valid (not "Unknown" or null) before writing to Firestore
+            if (selectedGame.isNullOrEmpty() || selectedGame == "Unknown") {
+                Log.d("LocationService", "Skipping Firestore write: no game selected or game is 'Unknown'")
+            } else {
+                // Append the raw location data to Firestore
+                appendLocationToFirestore(locationDataHM)
+            }
 
             // If there are POIs, find the closest one and adjust the vibration accordingly
             if (pois.isNotEmpty()) {
@@ -366,7 +374,8 @@ class LocationService : Service(), SensorEventListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         sessionId = intent?.getStringExtra("sessionId")
-        Log.d("LocationService", "Received session ID: $sessionId")
+        selectedGame = intent?.getStringExtra("selectedGame") // Get the selected game from the intent
+        Log.d("LocationService", "Received session ID: $sessionId and game: $selectedGame")
         return START_STICKY
     }
 
@@ -378,10 +387,10 @@ class LocationService : Service(), SensorEventListener {
         }
 
         val locationUpdatesRef = firestore.collection("Movement Data").document(sessionId!!)
-            .collection("Devices").document(androidId).collection("Data").document("Location Data")
+            .collection("LocationData") // Storing the location data in the new structure
 
         // Add a new document with a generated ID
-        locationUpdatesRef.collection("LocationDataSub").add(locationData)
+        locationUpdatesRef.add(locationData)
             .addOnSuccessListener { documentReference ->
                 Log.d("LocationService", "Location data added with ID: ${documentReference.id}")
             }

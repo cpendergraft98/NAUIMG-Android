@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Soul Seeker" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="F7F65869-E03B-4568-A014-1F6B106EA501" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">#persistent-stats {
+	<tw-storydata name="Soul Seeker" startnode="1" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="F7F65869-E03B-4568-A014-1F6B106EA501" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">#persistent-stats {
     position: fixed;
     top: 0;
     left: 0;
@@ -278,13 +278,20 @@ window.grabMetricsAndWriteData = function() {
         let checkData = {};
 
         // Add data to JSON object
-        checkData["playerName"] = State.variables.playerName;
         checkData["datetime"] = new Date();
-        checkData["userLatitude"] = location.latitude;
-        checkData["userLongitude"] = location.longitude;
-      	checkData["role"] = State.variables.role
-        checkData["origin"] = "twine";
+        checkData["latitude"] = location.latitude;
+        checkData["longitude"] = location.longitude;
+      	checkData["game"] = "Soul Seeker.html";
         checkData["androidId"] = location.androidId;
+        if (State.variables.insideCampus) {
+              checkData["hexagon"] = "campus";
+          } else if (State.variables.insideUrban) {
+              checkData["hexagon"] = "urban";
+          } else if (State.variables.insideRural) {
+              checkData["hexagon"] = "rural";
+          } else {
+              checkData["hexagon"] = "none";
+          }
 
         // Convert the JavaScript object to a JSON string
         var jsonString = JSON.stringify(checkData);

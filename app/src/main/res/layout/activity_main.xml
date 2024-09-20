@@ -18,4 +18,19 @@
         android:layout_height="wrap_content"
         android:text="Launch Game"
         android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/sessionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Session ID: None"
+        android:layout_marginBottom="16dp"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/updateSessionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Session ID"
+        android:layout_marginBottom="16dp"/>
 </LinearLayout>

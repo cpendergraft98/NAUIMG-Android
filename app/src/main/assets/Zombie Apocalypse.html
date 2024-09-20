@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Zombie Apocalypse" startnode="12" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="5AC4D7FD-2D34-4800-BECA-06870B5F605B" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
+	<tw-storydata name="Zombie Apocalypse" startnode="5" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="5AC4D7FD-2D34-4800-BECA-06870B5F605B" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
 function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
     // Calculate side length using the area of a regular hexagon
     const radius = Math.sqrt((2 * area) / (3 * Math.sqrt(3)));
@@ -293,13 +293,21 @@ window.grabMetricsAndWriteData = function() {
         let checkData = {};
 
         // Add data to JSON object
-        checkData["playerName"] = State.variables.playerName;
         checkData["datetime"] = new Date();
-        checkData["userLatitude"] = location.latitude;
-        checkData["userLongitude"] = location.longitude;
-      	checkData["role"] = State.variables.role
-        checkData["origin"] = "twine";
+        checkData["latitude"] = location.latitude;
+        checkData["longitude"] = location.longitude;
+      	checkData["game"] = "Zombie Apocalypse.html";
         checkData["androidId"] = location.androidId;
+        if (State.variables.insideCampus) {
+              checkData["hexagon"] = "campus";
+          } else if (State.variables.insideUrban) {
+              checkData["hexagon"] = "urban";
+          } else if (State.variables.insideRural) {
+              checkData["hexagon"] = "rural";
+          } else {
+              checkData["hexagon"] = "none";
+          }
+      	checkData["role"] = State.variables.role;
 
         // Convert the JavaScript object to a JSON string
         var jsonString = JSON.stringify(checkData);
@@ -367,7 +375,9 @@ THREATS: The zombie players will be hunting you in order to stop your progress o
 &lt;&lt;set $movementValue to 0&gt;&gt;
 &lt;&lt;set $directionValue to 0&gt;&gt;
 &lt;&lt;set $directionMessage to &quot;You have not determined a direction&quot;&gt;&gt;
-&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="925,550" size="100,100">GAMEPLAY INSTRUCTIONS
+&lt;&lt;set $movementMessage to &quot;You have not rolled for movement&quot;&gt;&gt;
+
+&lt;&lt;goto &quot;Setup&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="ZombieInstructions" tags="" position="925,550" size="100,100">GAMEPLAY INSTRUCTIONS
 
 GOAL: Your only goal is to wipe out the scientists attempting to cure the zombie plague.
 

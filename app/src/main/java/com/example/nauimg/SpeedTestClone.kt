@@ -1,6 +1,7 @@
 package com.example.nauimg
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -45,36 +46,55 @@ class SpeedTestClone : AppCompatActivity() {
         sessionId = intent.getStringExtra("SESSION_ID")
 
         btnMain.setOnClickListener {
-            if (btnMain.text == "Test") {
-                tvTitle.text = "Measuring..."
-                btnMain.text = "Measuring..."
+            when (btnMain.text.toString()) {
+                "Test" -> {
+                    tvTitle.text = "Measuring..."
+                    btnMain.text = "Measuring..."
+                    btnMain.setBackgroundColor(Color.GRAY) // Change to gray to indicate measuring is in progress
 
-                // Simulate measuring time
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val metrics = generateMetrics()
-                    val metricJSON = JSONObject(metrics)
+                    // Simulate measuring time
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val metrics = generateMetrics()
+                        val metricJSON = JSONObject(metrics)
 
-                    tvTitle.text = "Test Results"
-                    btnMain.text = "Finish"
+                        tvTitle.text = "Test Results"
+                        btnMain.text = "Take another measurement"
+                        btnMain.setBackgroundColor(Color.GREEN) // Change to green after measurement is done
 
-                    tvDownload.text = metricJSON.getString("downloadSpeed")
-                    tvUpload.text = metricJSON.getString("uploadSpeed")
-                    tvLatency.text = "Latency (ms)\n${metricJSON.getString("latency")}"
-                    tvPacketLoss.text = "Packet Loss (%)\n${metricJSON.getString("packetLoss")}"
-                    tvJitter.text = "Jitter (ms)\n${metricJSON.getString("jitter")}"
+                        tvDownload.text = metricJSON.getString("downloadSpeed")
+                        tvUpload.text = metricJSON.getString("uploadSpeed")
+                        tvLatency.text = "Latency (ms)\n${metricJSON.getString("latency")}"
+                        tvPacketLoss.text = "Packet Loss (%)\n${metricJSON.getString("packetLoss")}"
+                        tvJitter.text = "Jitter (ms)\n${metricJSON.getString("jitter")}"
 
-                    writeCheckDataToFirestore()
+                        writeCheckDataToFirestore()
 
-                }, 3000) // 3 seconds delay to simulate measurement time
-            } else {
-                tvTitle.text = "Ready to Test"
-                btnMain.text = "Test"
+                    }, 3000) // 3 seconds delay to simulate measurement time
+                }
+                "Take another measurement" -> {
+                    tvTitle.text = "Measuring..."
+                    btnMain.text = "Measuring..."
+                    btnMain.setBackgroundColor(Color.GRAY) // Set to gray again for measuring
 
-                tvDownload.text = "-"
-                tvUpload.text = "-"
-                tvLatency.text = "Latency (ms)\n-"
-                tvPacketLoss.text = "Packet Loss (%)\n-"
-                tvJitter.text = "Jitter (ms)\n-"
+                    // Simulate another measurement
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val metrics = generateMetrics()
+                        val metricJSON = JSONObject(metrics)
+
+                        tvTitle.text = "Test Results"
+                        btnMain.text = "Take another measurement"
+                        btnMain.setBackgroundColor(Color.GREEN) // Change back to green after measurement
+
+                        tvDownload.text = metricJSON.getString("downloadSpeed")
+                        tvUpload.text = metricJSON.getString("uploadSpeed")
+                        tvLatency.text = "Latency (ms)\n${metricJSON.getString("latency")}"
+                        tvPacketLoss.text = "Packet Loss (%)\n${metricJSON.getString("packetLoss")}"
+                        tvJitter.text = "Jitter (ms)\n${metricJSON.getString("jitter")}"
+
+                        writeCheckDataToFirestore()
+
+                    }, 3000) // 3 seconds delay to simulate measurement time
+                }
             }
         }
 
@@ -121,12 +141,13 @@ class SpeedTestClone : AppCompatActivity() {
             "datetime" to currentDate,
             "latitude" to latestLocation.latitude,
             "longitude" to latestLocation.longitude,
-            "origin" to "control",
+            "game" to "Speedtest",
+            "session" to sessionId,
             "androidId" to androidId
         )
 
         val checkDataRef = firestore.collection("Movement Data").document(sessionId!!)
-            .collection(androidId).document("Check Data").collection("Data")
+            .collection("CheckData")
 
         checkDataRef.add(checkData)
             .addOnSuccessListener { documentReference ->

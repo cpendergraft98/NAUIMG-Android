@@ -278,7 +278,7 @@ window.grabMetricsAndWriteData = function() {
         let checkData = {};
 
         // Add data to JSON object
-        checkData["datetime"] = new Date();
+        checkData["datetime"] = new Date().toISOString();
         checkData["latitude"] = location.latitude;
         checkData["longitude"] = location.longitude;
       	checkData["game"] = "Soul Seeker.html";

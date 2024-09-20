@@ -2,6 +2,7 @@ package com.example.nauimg
 
 import android.content.Intent
 import android.graphics.Color
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +14,7 @@ import org.json.JSONObject
 import java.util.*
 import com.google.firebase.firestore.FirebaseFirestore
 import android.provider.Settings
+import java.text.SimpleDateFormat
 
 class SpeedTestClone : AppCompatActivity() {
 
@@ -135,7 +137,9 @@ class SpeedTestClone : AppCompatActivity() {
             return
         }
 
-        val currentDate = Calendar.getInstance().time
+        val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        isoDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val currentDate = isoDateFormat.format(Calendar.getInstance().time)
 
         val checkData = hashMapOf(
             "datetime" to currentDate,

@@ -35,6 +35,9 @@ import android.os.Looper
 import android.os.HandlerThread
 import android.os.Process
 import android.webkit.WebView
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 class LocationService : Service(), SensorEventListener {
 
@@ -173,7 +176,9 @@ class LocationService : Service(), SensorEventListener {
 
     private fun handleLocationUpdate(locationResult: LocationResult) {
         latestLocation?.let { location ->
-            val currentDate = Calendar.getInstance().time
+            val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+            isoDateFormat.timeZone = TimeZone.getTimeZone("UTC")
+            val currentDate = isoDateFormat.format(Calendar.getInstance().time)
 
             // JSON Object so Twine game has access to data
             locationData.apply {

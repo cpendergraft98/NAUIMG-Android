@@ -9,6 +9,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.maps.model.LatLng
 import org.json.JSONArray
+import java.io.File
 
 // WebAppInterface and related methods for communicating between Android and JS
 class WebAppInterface(private val context: Context, private val firestore: FirebaseFirestore, private val sessionId: String, private var locationService: LocationService?) {
@@ -82,8 +83,38 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
                 .addOnFailureListener { e: Exception ->
                     Log.w("WebAppInterface", "Error adding document", e)
                 }
+            // Write data locally for redundancy
+            writeDataLocally("CheckData", dataMap)
         } catch (e: Exception) {
             Log.e("WebAppInterface", "Error in writeTwineData: ", e)
+        }
+    }
+
+    // Function to write data to local storage
+    private fun writeDataLocally(dataType: String, data: Map<String, Any>) {
+        try {
+            val sessionDir = File(context.filesDir, "MovementData/$sessionId")
+            if (!sessionDir.exists()) {
+                sessionDir.mkdirs()
+            }
+
+            // Write data to a JSON file in the appropriate directory
+            val file = File(sessionDir, "$dataType.json")
+            val jsonArray = if (file.exists()) {
+                JSONArray(file.readText()) // Read existing data
+            } else {
+                JSONArray() // Start new array if no file exists
+            }
+
+            // Append new data to the JSON array
+            jsonArray.put(JSONObject(data))
+
+            // Write the updated array back to the file
+            file.writeText(jsonArray.toString())
+
+            Log.d("WebAppInterface", "Data written to local storage: $file")
+        } catch (e: Exception) {
+            Log.e("WebAppInterface", "Error writing data locally", e)
         }
     }
 

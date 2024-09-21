@@ -278,6 +278,7 @@ window.grabMetricsAndWriteData = function() {
         let checkData = {};
 
         // Add data to JSON object
+      	checkData["nickname"] = State.variables.playerName;
         checkData["datetime"] = new Date().toISOString();
         checkData["latitude"] = location.latitude;
         checkData["longitude"] = location.longitude;
@@ -711,10 +712,10 @@ How do you approach defeating the golem?
     &lt;&lt;/if&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="Setup" tags="" position="900,200" size="100,100">
 
-Hello, and welcome to NetGauge&#39;s Soul Seeker!
+Hello, and welcome to NetPlay&#39;s Soul Seeker!
 
-Please start by entering your name in the box below.
-&lt;&lt;textbox &quot;$playerName&quot; YourName&gt;&gt;
+Please start by entering your experiment nickname in the box below.
+&lt;&lt;textbox &quot;$playerName&quot; YourNickname&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
 	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;
     &lt;&lt;run grabAndCheckLocation()&gt;&gt;

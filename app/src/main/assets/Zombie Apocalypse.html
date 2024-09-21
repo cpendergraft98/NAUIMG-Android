@@ -293,6 +293,7 @@ window.grabMetricsAndWriteData = function() {
         let checkData = {};
 
         // Add data to JSON object
+      	checkData["nickname"] = State.variables.playerName;
         checkData["datetime"] = new Date().toISOString();
         checkData["latitude"] = location.latitude;
         checkData["longitude"] = location.longitude;
@@ -481,10 +482,10 @@ ACTIONS:
 
 &lt;&lt;link &quot;All of the scientists have been converted!&quot;&gt;&gt;
 	&lt;&lt;goto &quot;ZombieSuccess&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcome to NetGauge&#39;s Zombie Apocalypse Game!
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcome to NetPlay&#39;s Zombie Apocalypse game!
 
-Please start by entering your name in the box below.
-&lt;&lt;textbox &quot;$playerName&quot; YourName&gt;&gt;
+Please start by entering your experiment nickname in the box below.
+&lt;&lt;textbox &quot;$playerName&quot; YourNickname&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
 	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;
     &lt;&lt;run grabAndCheckLocation()&gt;&gt;

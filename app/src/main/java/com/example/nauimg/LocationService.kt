@@ -35,6 +35,8 @@ import android.os.Looper
 import android.os.HandlerThread
 import android.os.Process
 import android.webkit.WebView
+import org.json.JSONArray
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -402,6 +404,9 @@ class LocationService : Service(), SensorEventListener {
             .addOnFailureListener { e ->
                 Log.e("LocationService", "Error adding location data", e)
             }
+
+        // Write data to local storage in for redundancy
+        writeDataLocally("LocationData", locationData)
     }
 
     private var currentRange: IntRange? = null
@@ -444,6 +449,34 @@ class LocationService : Service(), SensorEventListener {
             }
         } else {
             Log.d("VibrationService", "Remaining in the same range, no update to pulse interval.")
+        }
+    }
+
+    // Function to write data to local storage
+    private fun writeDataLocally(dataType: String, data: Map<String, Any>) {
+        try {
+            val sessionDir = File(applicationContext.filesDir, "MovementData/$sessionId")
+            if (!sessionDir.exists()) {
+                sessionDir.mkdirs()
+            }
+
+            // Write data to a JSON file in the appropriate directory
+            val file = File(sessionDir, "$dataType.json")
+            val jsonArray = if (file.exists()) {
+                JSONArray(file.readText()) // Read existing data
+            } else {
+                JSONArray() // Start new array if no file exists
+            }
+
+            // Append new data to the JSON array
+            jsonArray.put(JSONObject(data))
+
+            // Write the updated array back to the file
+            file.writeText(jsonArray.toString())
+
+            Log.d("LocationService", "Data written to local storage: $file")
+        } catch (e: Exception) {
+            Log.e("LocationService", "Error writing data locally", e)
         }
     }
 

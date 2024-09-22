@@ -120,6 +120,12 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 #persistent-stats span {
     font-size: 18px;
     font-weight: bold;
+}
+
+body {
+  font-size: 22px;        /* Adjust the font size globally */
+  color: #333333;         /* Text color */
+  background-color: #f0f0f0;  /* Background color */
 }</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Add stats bar to the body element
 $(document).on(':passagestart', function () {
     if ($('#persistent-stats').length === 0) {
@@ -715,7 +721,7 @@ How do you approach defeating the golem?
 Hello, and welcome to NetPlay&#39;s Soul Seeker!
 
 Please start by entering your experiment nickname in the box below.
-&lt;&lt;textbox &quot;$playerName&quot; YourNickname&gt;&gt;
+&lt;&lt;textbox &quot;$playerName&quot; &quot;&quot;&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
 	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;
     &lt;&lt;run grabAndCheckLocation()&gt;&gt;

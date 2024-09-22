@@ -1,11 +1,15 @@
 package com.example.nauimg
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.icu.util.Calendar
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -14,6 +18,8 @@ import org.json.JSONObject
 import java.util.*
 import com.google.firebase.firestore.FirebaseFirestore
 import android.provider.Settings
+import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import java.text.SimpleDateFormat
 
 class SpeedTestClone : AppCompatActivity() {
@@ -26,6 +32,7 @@ class SpeedTestClone : AppCompatActivity() {
     private lateinit var tvJitter: TextView
     private lateinit var btnMain: Button
     private lateinit var btnReturn: Button
+    private lateinit var vibrator: Vibrator
 
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
@@ -43,6 +50,15 @@ class SpeedTestClone : AppCompatActivity() {
         btnMain = findViewById(R.id.btnMain)
         btnReturn = findViewById(R.id.btnReturn)
 
+        // Initialize Vibrator
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+
         firestore = FirebaseFirestore.getInstance()
         androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         sessionId = intent.getStringExtra("SESSION_ID")
@@ -52,7 +68,8 @@ class SpeedTestClone : AppCompatActivity() {
                 "Test" -> {
                     tvTitle.text = "Measuring..."
                     btnMain.text = "Measuring..."
-                    btnMain.setBackgroundColor(Color.GRAY) // Change to gray to indicate measuring is in progress
+                    btnMain.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.purple_500))
+                    btnMain.setTextColor(ContextCompat.getColor(this, R.color.button_text_color)) // Ensure text color is white
 
                     // Simulate measuring time
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -61,7 +78,8 @@ class SpeedTestClone : AppCompatActivity() {
 
                         tvTitle.text = "Test Results"
                         btnMain.text = "Take another measurement"
-                        btnMain.setBackgroundColor(Color.GREEN) // Change to green after measurement is done
+                        btnMain.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green_500))
+                        btnMain.setTextColor(ContextCompat.getColor(this, R.color.button_text_color)) // Ensure text color is white
 
                         tvDownload.text = metricJSON.getString("downloadSpeed")
                         tvUpload.text = metricJSON.getString("uploadSpeed")
@@ -71,12 +89,18 @@ class SpeedTestClone : AppCompatActivity() {
 
                         writeCheckDataToFirestore()
 
+                        // Trigger a brief vibration (e.g., 500 milliseconds)
+                        if (vibrator.hasVibrator()) {
+                            vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                        }
+
                     }, 3000) // 3 seconds delay to simulate measurement time
                 }
                 "Take another measurement" -> {
                     tvTitle.text = "Measuring..."
                     btnMain.text = "Measuring..."
-                    btnMain.setBackgroundColor(Color.GRAY) // Set to gray again for measuring
+                    btnMain.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.purple_500))
+                    btnMain.setTextColor(ContextCompat.getColor(this, R.color.button_text_color)) // Ensure text color is white
 
                     // Simulate another measurement
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -85,7 +109,8 @@ class SpeedTestClone : AppCompatActivity() {
 
                         tvTitle.text = "Test Results"
                         btnMain.text = "Take another measurement"
-                        btnMain.setBackgroundColor(Color.GREEN) // Change back to green after measurement
+                        btnMain.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green_500))
+                        btnMain.setTextColor(ContextCompat.getColor(this, R.color.button_text_color)) // Ensure text color is white
 
                         tvDownload.text = metricJSON.getString("downloadSpeed")
                         tvUpload.text = metricJSON.getString("uploadSpeed")
@@ -94,6 +119,11 @@ class SpeedTestClone : AppCompatActivity() {
                         tvJitter.text = "Jitter (ms)\n${metricJSON.getString("jitter")}"
 
                         writeCheckDataToFirestore()
+
+                        // Trigger a brief vibration (e.g., 500 milliseconds)
+                        if (vibrator.hasVibrator()) {
+                            vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                        }
 
                     }, 3000) // 3 seconds delay to simulate measurement time
                 }

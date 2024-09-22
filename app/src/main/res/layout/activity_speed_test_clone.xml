@@ -110,15 +110,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Test"
-        android:background="#007AFF"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="16dp"/>
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@color/button_text_color"/>
     <Button
         android:id="@+id/btnReturn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Return to Menu"
-        android:background="#007AFF"
-        android:textColor="#FFFFFF"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@color/button_text_color"
         android:layout_marginTop="16dp"/>
 </LinearLayout>

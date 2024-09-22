@@ -98,7 +98,11 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Zombie Apocalypse" startnode="5" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="5AC4D7FD-2D34-4800-BECA-06870B5F605B" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
+	<tw-storydata name="Zombie Apocalypse" startnode="5" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="5AC4D7FD-2D34-4800-BECA-06870B5F605B" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
+  font-size: 22px;        /* Adjust the font size globally */
+  color: #333333;         /* Text color */
+  background-color: #f0f0f0;  /* Background color */
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
 function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
     // Calculate side length using the area of a regular hexagon
     const radius = Math.sqrt((2 * area) / (3 * Math.sqrt(3)));
@@ -485,7 +489,7 @@ ACTIONS:
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ZombieSuccess" tags="" position="750,900" size="100,100">&quot;BRAINNNNNNSSSSSSS&quot; you roar into the sky after you consume the grey matter from the last scientist attempting to stop the march of you and your brethern across the world. This is the end of the human race, and the dawn of an age of undead.</tw-passagedata><tw-passagedata pid="12" name="Setup" tags="" position="600,275" size="100,100">Hello, and welcome to NetPlay&#39;s Zombie Apocalypse game!
 
 Please start by entering your experiment nickname in the box below.
-&lt;&lt;textbox &quot;$playerName&quot; YourNickname&gt;&gt;
+&lt;&lt;textbox &quot;$playerName&quot; &quot;&quot;&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
 	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;
     &lt;&lt;run grabAndCheckLocation()&gt;&gt;

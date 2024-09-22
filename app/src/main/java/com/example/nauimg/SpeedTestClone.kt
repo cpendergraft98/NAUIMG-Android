@@ -19,7 +19,8 @@ import java.util.*
 import com.google.firebase.firestore.FirebaseFirestore
 import android.provider.Settings
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
+import org.json.JSONArray
+import java.io.File
 import java.text.SimpleDateFormat
 
 class SpeedTestClone : AppCompatActivity() {
@@ -176,7 +177,7 @@ class SpeedTestClone : AppCompatActivity() {
             "latitude" to latestLocation.latitude,
             "longitude" to latestLocation.longitude,
             "game" to "Speedtest",
-            "session" to sessionId,
+            "session" to (sessionId ?: "Unknown"),
             "androidId" to androidId
         )
 
@@ -190,5 +191,35 @@ class SpeedTestClone : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Log.e("SpeedTestClone", "Error adding check data", e)
             }
+
+        writeDataLocally("CheckData", checkData)
+    }
+
+    // Function to write data to local storage
+    private fun writeDataLocally(dataType: String, data: Map<String, Any>) {
+        try {
+            val sessionDir = File(applicationContext.filesDir, "MovementData/$sessionId")
+            if (!sessionDir.exists()) {
+                sessionDir.mkdirs()
+            }
+
+            // Write data to a JSON file in the appropriate directory
+            val file = File(sessionDir, "$dataType.json")
+            val jsonArray = if (file.exists()) {
+                JSONArray(file.readText()) // Read existing data
+            } else {
+                JSONArray() // Start new array if no file exists
+            }
+
+            // Append new data to the JSON array
+            jsonArray.put(JSONObject(data))
+
+            // Write the updated array back to the file
+            file.writeText(jsonArray.toString())
+
+            Log.d("LocationService", "Data written to local storage: $file")
+        } catch (e: Exception) {
+            Log.e("LocationService", "Error writing data locally", e)
+        }
     }
 }

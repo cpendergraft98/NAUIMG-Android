@@ -12,7 +12,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
-import android.provider.Settings
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast

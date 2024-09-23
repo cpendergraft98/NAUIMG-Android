@@ -63,6 +63,7 @@ class WebViewActivity : AppCompatActivity() {
         webSettings.javaScriptEnabled = true
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.allowFileAccess = true
+        webSettings.allowContentAccess = true
         webSettings.domStorageEnabled = true
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
@@ -85,7 +86,6 @@ class WebViewActivity : AppCompatActivity() {
             webView.webViewClient = WebViewClient()
             webView.loadUrl("file:///android_asset/$filename")
         }
-
 
         // Set click listener for return button
         returnButton.setOnClickListener {

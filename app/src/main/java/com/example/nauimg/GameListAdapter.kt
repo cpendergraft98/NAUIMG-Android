@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import android.content.res.Configuration
+
 class GameListAdapter(private val games: List<Game>, private val itemClickListener: (Game) -> Unit) :
     RecyclerView.Adapter<GameListAdapter.GameViewHolder>() {
 

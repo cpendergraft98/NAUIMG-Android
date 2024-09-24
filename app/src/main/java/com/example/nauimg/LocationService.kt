@@ -66,6 +66,8 @@ class LocationService : Service(), SensorEventListener {
     private lateinit var handlerThread: HandlerThread
     private lateinit var backgroundHandler: Handler
 
+    private var writeCounter: Int = 5; // We use this to track when we should be writing data to firestore
+
     // Binder given to clients
     private val binder = LocalBinder()
 
@@ -92,6 +94,11 @@ class LocationService : Service(), SensorEventListener {
         fun setPOIs(poiList: List<LatLng>) {
             pois.clear()
             pois.addAll(poiList)
+        }
+
+        fun clearPOIs(service: LocationService) {
+            pois.clear()
+            service.stopVibration()
         }
     }
 
@@ -154,7 +161,19 @@ class LocationService : Service(), SensorEventListener {
                 Log.d("LocationService", "Location update received: $latestLocation")
 
                 // Handle location updates on background thread
-                handleLocationUpdate(locationResult)
+                handleLocationUpdate(locationResult, writeCounter)
+
+                // We receive location updates every 1 second, but to avoid Firestore
+                // data write quotas we only write every fifth update.
+                // Update writeCounter
+                if(writeCounter == 5)
+                {
+                    // Reset the count
+                    writeCounter = 0
+                }else{
+                    // Increment writeCounter
+                    writeCounter += 1
+                }
             }
         }
         // Start location updates on the background thread
@@ -176,7 +195,7 @@ class LocationService : Service(), SensorEventListener {
         }
     }
 
-    private fun handleLocationUpdate(locationResult: LocationResult) {
+    private fun handleLocationUpdate(locationResult: LocationResult, writeCounter: Int) {
         latestLocation?.let { location ->
             val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
             isoDateFormat.timeZone = TimeZone.getTimeZone("UTC")
@@ -206,12 +225,20 @@ class LocationService : Service(), SensorEventListener {
                 "game" to (selectedGame ?: "Unknown")
             )
 
-            // Check if the game is valid (not "Unknown" or null) before writing to Firestore
-            if (selectedGame.isNullOrEmpty() || selectedGame == "Unknown") {
-                Log.d("LocationService", "Skipping Firestore write: no game selected or game is 'Unknown'")
-            } else {
-                // Append the raw location data to Firestore
-                appendLocationToFirestore(locationDataHM)
+            // Only want to write every fifth location update
+            if(writeCounter == 5)
+            {
+                // Check if the game is valid (not "Unknown" or null) before writing to Firestore
+                if (selectedGame.isNullOrEmpty() || selectedGame == "Unknown") {
+                    Log.d("LocationService", "Skipping Firestore write: no game selected or game is 'Unknown'")
+                } else {
+                    // Append the raw location data to Firestore
+                    appendLocationToFirestore(locationDataHM)
+                }
+            }
+            else
+            {
+                Log.d("LocationService", "Skipping firestore write, only writing every 5th location update.")
             }
 
             // If there are POIs, find the closest one and adjust the vibration accordingly
@@ -370,13 +397,6 @@ class LocationService : Service(), SensorEventListener {
         val x = cos(Math.toRadians(lat1)) * sin(Math.toRadians(lat2)) -
                 sin(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * cos(dLon)
         return (Math.toDegrees(atan2(y, x)) + 360) % 360
-    }
-
-    private fun stopVibration() {
-        handler?.removeCallbacksAndMessages(null)
-        isVibrating = false
-        vibrator.cancel()
-        Log.d("VibrationService", "Vibration handler stopped and vibration canceled.")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -560,6 +580,13 @@ class LocationService : Service(), SensorEventListener {
         stopLocationUpdates()
         handlerThread.quitSafely()
         Log.d("LocationService", "Service destroyed")
+    }
+
+    private fun stopVibration() {
+        handler?.removeCallbacksAndMessages(null)
+        isVibrating = false
+        vibrator.cancel()
+        Log.d("VibrationService", "Vibration handler stopped and vibration canceled.")
     }
 
     override fun onBind(intent: Intent): IBinder {

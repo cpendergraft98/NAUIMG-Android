@@ -91,7 +91,8 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
     }
 
     // Function to write data to local storage
-    private fun writeDataLocally(dataType: String, data: Map<String, Any>) {
+    @JavascriptInterface
+    fun writeDataLocally(dataType: String, data: Map<String, Any>) {
         try {
             val sessionDir = File(context.filesDir, "MovementData/$sessionId")
             if (!sessionDir.exists()) {
@@ -108,6 +109,38 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
 
             // Append new data to the JSON array
             jsonArray.put(JSONObject(data))
+
+            // Write the updated array back to the file
+            file.writeText(jsonArray.toString())
+
+            Log.d("WebAppInterface", "Data written to local storage: $file")
+        } catch (e: Exception) {
+            Log.e("WebAppInterface", "Error writing data locally", e)
+        }
+    }
+
+    // Same as above but takes in a JSON string instead of a Hash Map
+    @JavascriptInterface
+    fun writeDataLocallyJSON(dataType: String, jsonString: String) {
+        try {
+            // Convert the JSON string into a JSONObject
+            val jsonObject = JSONObject(jsonString)
+
+            val sessionDir = File(context.filesDir, "MovementData/$sessionId")
+            if (!sessionDir.exists()) {
+                sessionDir.mkdirs()
+            }
+
+            // Write data to a JSON file in the appropriate directory
+            val file = File(sessionDir, "$dataType.json")
+            val jsonArray = if (file.exists()) {
+                JSONArray(file.readText()) // Read existing data
+            } else {
+                JSONArray() // Start new array if no file exists
+            }
+
+            // Append new data to the JSON array
+            jsonArray.put(jsonObject)
 
             // Write the updated array back to the file
             file.writeText(jsonArray.toString())

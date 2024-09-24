@@ -104,6 +104,11 @@ class WebViewActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        // Clear the POI list if to terminate vibrations when leaving
+        locationService?.let {
+            // Call clearPOIs on LocationService's companion object and pass the instance
+            LocationService.clearPOIs(it)
+        }
         if(isBound) {
             unbindService(connection)
             isBound = false

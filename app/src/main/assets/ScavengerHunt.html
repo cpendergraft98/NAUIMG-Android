@@ -98,11 +98,17 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="ScavengerHunt" startnode="15" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="55E6330D-BEC5-4B27-9FFB-19595F5DB5CF" options="" tags="" zoom="0.6" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
+	<tw-storydata name="ScavengerHunt" startnode="15" creator="Twine" creator-version="2.8.1" format="SugarCube" format-version="2.36.1" ifid="55E6330D-BEC5-4B27-9FFB-19595F5DB5CF" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
   font-size: 22px;        /* Adjust the font size globally */
   color: #333333;         /* Text color */
   background-color: #f0f0f0;  /* Background color */
-}</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
+}
+
+input[type="text"] {
+  transform: scale(0.65);  /* Scale down the textbox to 80% of its original size */
+  transform-origin: left; /* Make sure the scaling starts from the left side */
+}
+</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to compute vertices of a hexagonal plane given a center point and desired area in km^2
 function calculateHexagonVertices(centerLatitude, centerLongitude, area) {
     // Calculate side length using the area of a regular hexagon
     const radius = Math.sqrt((2 * area) / (3 * Math.sqrt(3)));
@@ -261,24 +267,14 @@ window.displayMetrics = function() {
   
   // Display the measurement values to the user
   alert("Upload Speed: " + State.variables.uploadSpeed + "Mbps\n" + "Download Speed: " + State.variables.downloadSpeed + "Mbps\n" + "Jitter: " + State.variables.jitter + "ms\n" + "Packet Loss: " + State.variables.packetLoss + "%\n" + "Latency: " + State.variables.latency + "ms");
-};</script><tw-passagedata pid="1" name="Start" tags="" position="800,300" size="100,100">Hello, and welcome to NetPlay&#39;s Flagstaff Scavenger Hunt!
+};</script><tw-passagedata pid="1" name="Start" tags="" position="800,250" size="100,100">Hello, and welcome to NetPlay&#39;s Flagstaff Scavenger Hunt!
 
 Please start by entering your experiment nickname in the box below.
 &lt;&lt;textbox &quot;$playerName&quot; &quot;&quot;&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
-	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;
-    
+	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;  
 	&lt;&lt;run grabAndCheckLocation()&gt;&gt;
-    
-    &lt;&lt;if State.variables.insideCampus&gt;&gt;
-		&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
-	&lt;&lt;elseif State.variables.insideUrban&gt;&gt;
-		&lt;&lt;goto &quot;UrbanLocation&quot;&gt;&gt;
-	&lt;&lt;elseif State.variables.insideRural&gt;&gt;
-		&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
-	&lt;&lt;else&gt;&gt;
-		&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
-	&lt;&lt;/if&gt;&gt;
+    &lt;&lt;goto &quot;Instructions&quot;&gt;&gt;
 &lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">Nice to meet you, $playerName!
 
 It seems you are in the vicinty of Heritage Square! There are a number of locations we&#39;d like you to attempt to find in this area. Below are hints to those locations!
@@ -465,11 +461,11 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 &lt;&lt;if $campusLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;The name or acronym of the building directly across from SICCS.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The name of the building directly across from the SICCS entrance. (Look for the sign)&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH1&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;set $entry to $entry_CLH1.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
-    	&lt;&lt;if $entry == &quot;internetservicesannex&quot; || $entry == &quot;its&quot; || $entry == &quot;isa&quot;&gt;&gt;
+    	&lt;&lt;if $entry == &quot;informationsystems&quot; || $entry == &quot;informationsystemsannex&quot; || $entry == &quot;informationsystemsbuilding&quot; || $entry == &quot;its&quot; || $entry == &quot;is&quot; || $entry == &quot;isb&quot; || $entry == &quot;isa&quot;&gt;&gt;
         	&lt;&lt;set $campusLocation_Hint1 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ1&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -516,13 +512,37 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3&gt;&gt;
+&lt;&lt;if $campusLocation_Hint4&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;When facing the SICCS entrance, there will be another large building across the parking lot to your left. What is the name of this building? (Look for the Sign)&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH4&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_CLH4.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;ard&quot; || $entry == &quot;arad&quot; || $entry == &quot;appliedresearchanddevelopment&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint4 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ4&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3 and $campusLocation_Hint4&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_CL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="IncorrectResponse_CL" tags="" position="500,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CorrectResponse_CL" tags="" position="300,700" size="100,100">Well done $playerName, that answer was correct!.
+&lt;&lt;/link&gt;&gt;
+
+&lt;&lt;link &quot;Interested in seeing the internet data you collected? Click here!&quot;&gt;&gt;
+	&lt;&lt;run displayMetrics()&gt;&gt;
+&lt;&lt;/link&gt;&gt;
+
+&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CorrectResponse_CL" tags="" position="300,700" size="100,100">Well done $playerName, that answer was correct!.
 
 &lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
@@ -564,7 +584,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 &lt;&lt;set $score to 0&gt;&gt;
 
 &lt;&lt;goto &quot;Start&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Map" tags="" position="1000,100" size="100,100">&lt;&lt;if State.variables.insideCampus&gt;&gt;
-   	&lt;div style=&quot;max-width: 100%; overflow: hidden;&quot;&gt;
+	&lt;div style=&quot;max-width: 100%; overflow: auto;&quot;&gt;
     	&lt;img id=&quot;zoomable-map&quot; src=&quot;Campus-PlayArea.png&quot; alt=&quot;Map&quot; style=&quot;width: 100%; max-width: 1000px;&quot;&gt;
 	&lt;/div&gt;
 &lt;&lt;elseif State.variables.insideUrban&gt;&gt;
@@ -579,6 +599,22 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 
 &lt;&lt;link &quot;Return to game&quot;&gt;&gt;
 	&lt;&lt;goto $previousPassage&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Instructions" tags="" position="800,375" size="100,100">INSTRUCTIONS
+
+On the next screen you will be presented with a series of hints to find landmarks nearby you. Please enter your answers one-at-a-time and then click the &quot;Submit&quot; button for the question you are answering. You have infinite tries on each question, so don&#39;t be afraid to try different answers! To get an idea of the play area you can select the link to &quot;View the play area map&quot;.
+
+That&#39;s all, enjoy the game!
+
+&lt;&lt;link &quot;I&#39;m ready!&quot;&gt;&gt;
+	&lt;&lt;if State.variables.insideCampus&gt;&gt;
+		&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
+	&lt;&lt;elseif State.variables.insideUrban&gt;&gt;
+		&lt;&lt;goto &quot;UrbanLocation&quot;&gt;&gt;
+	&lt;&lt;elseif State.variables.insideRural&gt;&gt;
+		&lt;&lt;goto &quot;RuralLocation&quot;&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
 	/*! SugarCube JS */

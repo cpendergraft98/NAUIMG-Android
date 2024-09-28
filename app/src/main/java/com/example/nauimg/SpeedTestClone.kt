@@ -32,7 +32,7 @@ class SpeedTestClone : AppCompatActivity() {
     private lateinit var tvPacketLoss: TextView
     private lateinit var tvJitter: TextView
     private lateinit var btnMain: Button
-    private lateinit var btnReturn: Button
+    private lateinit var btnForm: Button
     private lateinit var vibrator: Vibrator
 
     private lateinit var firestore: FirebaseFirestore
@@ -49,7 +49,7 @@ class SpeedTestClone : AppCompatActivity() {
         tvPacketLoss = findViewById(R.id.tvPacketLoss)
         tvJitter = findViewById(R.id.tvJitter)
         btnMain = findViewById(R.id.btnMain)
-        btnReturn = findViewById(R.id.btnReturn)
+        btnForm = findViewById(R.id.btnForm)
 
         // Initialize Vibrator
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -131,10 +131,11 @@ class SpeedTestClone : AppCompatActivity() {
             }
         }
 
-        btnReturn.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+        btnForm.setOnClickListener {
+            val intent = Intent(this, LikertFormActivity::class.java)
+            intent.putExtra("SESSION_ID", sessionId) // Pass the session ID
+            startActivity(intent) // Start the activity
+            finish() // Optionally finish the current activity
         }
     }
     private fun generateMetrics(): String {

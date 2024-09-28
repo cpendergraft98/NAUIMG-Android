@@ -113,10 +113,10 @@
         android:backgroundTint="@color/purple_500"
         android:textColor="@color/button_text_color"/>
     <Button
-        android:id="@+id/btnReturn"
+        android:id="@+id/btnForm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Return to Menu"
+        android:text="Proceed to Survey"
         android:backgroundTint="@color/purple_500"
         android:textColor="@color/button_text_color"
         android:layout_marginTop="16dp"/>

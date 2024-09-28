@@ -90,6 +90,45 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
         }
     }
 
+    @JavascriptInterface
+    fun writeLikertData(data: String) {
+        try {
+            Log.d("WebAppInterface", "Received data: $data")
+
+            val jsonObject = JSONObject(data)
+
+            // Add sessionId to the JSON object
+            jsonObject.put("sessionId", sessionId)
+
+            // Use the Android ID to identify the device (for logging, though it's not part of the pathing)
+            val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            Log.d("WebAppInterface", "Android ID: $androidId")
+
+            // Reference to the Likert collection in Firestore for the current session
+            val checkDataRef = firestore.collection("Movement Data")
+                .document(sessionId!!)
+                .collection("LikertData")
+
+            Log.d("WebAppInterface", "Firestore Path: Movement Data/$sessionId/LikertData")
+
+            // Convert JSON object to Map
+            val dataMap = jsonToMap(jsonObject)
+
+            // Add data to Firestore, let Firestore generate the document ID automatically
+            checkDataRef.add(dataMap)
+                .addOnSuccessListener { documentReference ->
+                    Log.d("WebAppInterface", "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e: Exception ->
+                    Log.w("WebAppInterface", "Error adding document", e)
+                }
+            // Write data locally for redundancy
+            writeDataLocally("LikertData", dataMap)
+        } catch (e: Exception) {
+            Log.e("WebAppInterface", "Error in writeTwineData: ", e)
+        }
+    }
+
     // Function to write data to local storage
     @JavascriptInterface
     fun writeDataLocally(dataType: String, data: Map<String, Any>) {

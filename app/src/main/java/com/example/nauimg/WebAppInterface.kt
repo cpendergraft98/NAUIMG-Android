@@ -23,11 +23,11 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
     fun generateMetrics(): String {
         val random = Random()
 
-        val uploadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
-        val downloadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
+        val uploadSpeed = random.nextInt((75 - 1) + 1) + 1 // Mbps
+        val downloadSpeed = random.nextInt((75 - 1) + 1) + 1 // Mbps
         val jitter = random.nextInt((50 - 1) + 1) + 1 // ms
-        val packetLoss = random.nextInt(100) // %
-        val latency = random.nextInt((100 - 1) + 1) + 1 // ms
+        val packetLoss = random.nextInt(35) // %
+        val latency = random.nextInt((75 - 1) + 1) + 1 // ms
 
         val metricJSON = JSONObject()
         metricJSON.put("uploadSpeed", uploadSpeed)
@@ -43,12 +43,6 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
     fun getLocationJSON(): String {
         // Return the current state of the JSON array as a formatted string
         return LocationService.locationData.toString(4)
-    }
-
-    private var checkCounter = 0
-
-    init {
-        resetCheckCounter()
     }
 
     @JavascriptInterface
@@ -222,16 +216,6 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
         } ?: Log.e("WebAppInterface", "LocationService is not initialized")
     }
 
-
-    private fun generateCheckId(): String {
-        checkCounter += 1
-        return "Check $checkCounter"
-    }
-
-    private fun resetCheckCounter() {
-        checkCounter = 0
-    }
-
     private fun jsonToMap(jsonObject: JSONObject): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
         val keys = jsonObject.keys()
@@ -260,5 +244,27 @@ class WebAppInterface(private val context: Context, private val firestore: Fireb
             list.add(value)
         }
         return list
+    }
+
+    @JavascriptInterface
+    fun setPlayerName(playerName: String)
+    {
+        // Log the received player name
+        Log.d("WebAppInterface", "Received player name from Twine: $playerName")
+
+        // Forward the player name to the LocationService
+        locationService?.let{
+            it.setPlayerName(playerName)
+        } ?: Log.e("WebAppInterface", "LocationService is not initialized")
+    }
+
+    @JavascriptInterface
+    fun clearPOIs() {
+        Log.d("WebAppInterface", "Clear POIs requested from Twine.")
+        locationService?.let {
+            // Call the clearPOIs method directly from the companion object of LocationService
+            LocationService.clearPOIs(it)
+            Log.d("WebAppInterface", "POIs cleared, vibration stopped.")
+        } ?: Log.e("WebAppInterface", "LocationService is not initialized.")
     }
 }

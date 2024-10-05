@@ -362,24 +362,28 @@ window.submitLikertAnswers = function() {
     } else {
       	showCustomAlert("Post-Game Form", "Please answer both questions before submitting.");
     }
+};
+
+window.sendPlayerNameToAndroid = function() {
+  	if(AndroidBridge && State.variables.playerName)
+    {
+     	AndroidBridge.setPlayerName(State.variables.playerName); 
+    }
 };</script><tw-passagedata pid="1" name="Start" tags="" position="800,250" size="100,100">Hello, and welcome to NetPlay&#39;s Flagstaff Scavenger Hunt!
 
 Please start by entering your experiment nickname in the box below.
 &lt;&lt;textbox &quot;$playerName&quot; &quot;&quot;&gt;&gt;
 &lt;&lt;button &quot;Submit&quot;&gt;&gt;
 	&lt;&lt;set State.variables.playerName = $playerName&gt;&gt;  
+    &lt;&lt;run sendPlayerNameToAndroid()&gt;&gt;
 	&lt;&lt;run grabAndCheckLocation()&gt;&gt;
     &lt;&lt;goto &quot;Instructions&quot;&gt;&gt;
-&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">Nice to meet you, $playerName!
-
-It seems you are in the vicinty of Heritage Square! There are a number of locations we&#39;d like you to attempt to find in this area. Below are hints to those locations!
-
-&lt;&lt;link &quot;View the Play Area map&quot;&gt;&gt;&lt;&lt;set $previousPassage to passage()&gt;&gt;&lt;&lt;goto &quot;Map&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;/button&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="UrbanLocation" tags="" position="800,500" size="100,100">It seems you are in the vicinty of Heritage Square! You can find the Scavenger Hunt clues relating to this area below.
 
 &lt;&lt;if $urbanLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;The FIRST of two sponsors of the &#39;Little Library&#39; in the square.&quot;&gt;&gt;
+	&lt;&lt;print &quot;The FIRST sponsor (of two) of the &#39;Little Library&#39; in the square.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_ULH1&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;set $entry to $entry_ULH1.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
@@ -448,13 +452,45 @@ It seems you are in the vicinty of Heritage Square! There are a number of locati
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $urbanLocation_Hint1 and $urbanLocation_Hint2 and $urbanLocation_Hint3 and $urbanLocation_Hint4&gt;&gt;
+&lt;&lt;if $urbanLocation_Hint5&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;What pollinators need our help? (Hint: Planter)&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH5&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_ULH5.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;monarchbutterfly&quot; || $entry == &quot;monarchbutterflies&quot; || $entry == &quot;butterfly&quot; || $entry == &quot;butterflies&quot; || $entry == &quot;monarch&quot;&gt;&gt;
+        	&lt;&lt;set $urbanLocation_Hint5 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ5&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $urbanLocation_Hint6&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Which landmark in the square was donated by the Grand Canyon National Park?&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_ULH6&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_ULH6.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;grandcanyonstrata&quot; || $entry == &quot;flagpole&quot; || $entry == &quot;flag&quot;&gt;&gt;
+        	&lt;&lt;set $urbanLocation_Hint6 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;UrbanQ6&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_UL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $urbanLocation_Hint1 and $urbanLocation_Hint2 and $urbanLocation_Hint3 and $urbanLocation_Hint4 and $urbanLocation_Hint5 and $urbanLocation_Hint6&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_UL&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RuralLocation" tags="" position="1200,500" size="100,100">Nice to meet you, $playerName!
-
-It seems you are in the vicinty of the Museum of Northern Arizona! There are a number of locations we&#39;d like you to attempt to find in this area. Below are hints to those locations!
-
-&lt;&lt;link &quot;View the Play Area map&quot;&gt;&gt;&lt;&lt;set $previousPassage to passage()&gt;&gt;&lt;&lt;goto &quot;Map&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="RuralLocation" tags="" position="1200,500" size="100,100">It seems you are in the vicinty of the Museum of Northern Arizona! You can find the Scavenger Hunt clues relating to this area below.
 
 &lt;&lt;if $ruralLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
@@ -481,7 +517,7 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;textbox &quot;$entry_RLH2&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     &lt;&lt;set $entry to $entry_RLH2.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
-    	&lt;&lt;if $entry == &quot;riodeflag&quot;&gt;&gt;
+    	&lt;&lt;if $entry == &quot;riodeflag&quot; || $entry == &quot;riodeflagtrail&quot;&gt;&gt;
         	&lt;&lt;set $ruralLocation_Hint2 to true&gt;&gt;
             &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ2&quot;&gt;&gt;
             &lt;&lt;set $score to $score + 100&gt;&gt;
@@ -513,7 +549,7 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
 &lt;&lt;if $ruralLocation_Hint4&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;What is the name of the individual who donated the land to the museum? Hint: Flagpole&quot;&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the individual who donated the land to the museum? (Hint: Flagpole)&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_RLH4&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     &lt;&lt;set $entry to $entry_RLH4.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
@@ -528,11 +564,47 @@ It seems you are in the vicinty of the Museum of Northern Arizona! There are a n
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $ruralLocation_Hint1 and $ruralLocation_Hint2 and $ruralLocation_Hint3 and $ruralLocation_Hint4&gt;&gt;
+&lt;&lt;if $ruralLocation_Hint5&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;What time does the museum close?&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH5&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_RLH5.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;5&quot; || $entry == &quot;5pm&quot; || $entry == &quot;500pm&quot; || $entry == &quot;500&quot; || $entry == &quot;five&quot; || $entry == &quot;fivepm&quot; || $entry == &quot;fiveoclock&quot; || $entry == &quot;fiveoclockpm&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint5 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ5&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $ruralLocation_Hint6&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;Finish the quote: &#39;This museum displays ___&#39;&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_RLH6&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_RLH6.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;ideasnotthings&quot;&gt;&gt;
+        	&lt;&lt;set $ruralLocation_Hint6 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;RuralQ6&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_RL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $ruralLocation_Hint1 and $ruralLocation_Hint2 and $ruralLocation_Hint3 and $ruralLocation_Hint4 and $ruralLocation_Hint5 and $ruralLocation_Hint6&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_RL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="NoLocation" tags="" position="1000,300" size="100,100">Sorry $playerName, we have not detected you in any of our interest locations. Please re-check your location using the link below. 
 
-If the issue persists, please ensure that you have location services enabled on your device and that you have granted the NAUIMG app access to location data.
+If the issue persists, please ensure that you have location services enabled on your device and that you have granted the NetPlay Games app access to location data.
 
 &lt;&lt;link &quot;Check my location&quot;&gt;&gt;
 	&lt;&lt;run grabAndCheckLocation()&gt;&gt;
@@ -547,16 +619,12 @@ If the issue persists, please ensure that you have location services enabled on 
         &lt;&lt;goto &quot;NoLocation&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;
     
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="CampusLocation" tags="" position="400,500" size="100,100">Nice to meet you, $playerName!
-
-It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, and Cyber Systems! There are a number of locations we&#39;d like you to attempt to find in this area. Below are hints to those locations!
-
-&lt;&lt;link &quot;View the Play Area map&quot;&gt;&gt;&lt;&lt;set $previousPassage to passage()&gt;&gt;&lt;&lt;goto &quot;Map&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="CampusLocation" tags="" position="400,500" size="100,100">It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, and Cyber Systems! You can find the Scavenger Hunt clues relating to this area below.
 
 &lt;&lt;if $campusLocation_Hint1&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;The name of the building directly across from the SICCS entrance. (Look for the sign)&quot;&gt;&gt;
+	&lt;&lt;print &quot;The name of the building directly across from the SICCS entrance.&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH1&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     	&lt;&lt;set $entry to $entry_CLH1.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
@@ -610,7 +678,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 &lt;&lt;if $campusLocation_Hint4&gt;&gt;
 	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	&lt;&lt;print &quot;When facing the SICCS entrance, there will be another large building across the parking lot to your left. What is the name of this building? (Look for the Sign)&quot;&gt;&gt;
+	&lt;&lt;print &quot;When facing the SICCS entrance, there will be another large building across the parking lot to your left. What is the name of this building?&quot;&gt;&gt;
     &lt;&lt;textbox &quot;$entry_CLH4&quot; &quot;&quot;&gt;&gt;
     &lt;&lt;button &quot;Submit&quot;&gt;&gt;
     &lt;&lt;set $entry to $entry_CLH4.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
@@ -625,11 +693,47 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
     &lt;&lt;/button&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
-&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3 and $campusLocation_Hint4&gt;&gt;
+&lt;&lt;if $campusLocation_Hint5&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the project to produce control software for a robotic nipple? (Hint: Lobby)&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH5&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_CLH5.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;wilbur&quot; || $entry == &quot;projectwilbur&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint5 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ5&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint6&gt;&gt;
+	&lt;&lt;print &quot;You have solved this item!&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;print &quot;What is the name of the SICCS director? (Hint: Lobby)&quot;&gt;&gt;
+    &lt;&lt;textbox &quot;$entry_CLH6&quot; &quot;&quot;&gt;&gt;
+    &lt;&lt;button &quot;Submit&quot;&gt;&gt;
+    &lt;&lt;set $entry to $entry_CLH6.replace(/\s+/g, &#39;&#39;).replace(/[^a-zA-Z0-9]/g, &#39;&#39;).toLowerCase()&gt;&gt;
+    	&lt;&lt;if $entry == &quot;viacheslavfofanov&quot; || $entry == &quot;viacheslav&quot; || $entry == &quot;vova&quot; || $entry == &quot;fofanov&quot; || $entry == &quot;vovafofanov&quot;&gt;&gt;
+        	&lt;&lt;set $campusLocation_Hint6 to true&gt;&gt;
+            &lt;&lt;set State.variables.hintAnswered to &quot;CampusQ6&quot;&gt;&gt;
+            &lt;&lt;set $score to $score + 100&gt;&gt;
+            &lt;&lt;goto &quot;CorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+        	&lt;&lt;goto &quot;IncorrectResponse_CL&quot;&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/button&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;if $campusLocation_Hint1 and $campusLocation_Hint2 and $campusLocation_Hint3 and $campusLocation_Hint4 and $campusLocation_Hint5 and $campusLocation_Hint6&gt;&gt;
 	&lt;&lt;goto &quot;HintsComplete_CL&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="IncorrectResponse_CL" tags="" position="500,700" size="100,100">Sorry $playerName, that wasn&#39;t quite right! Please try again!
 
-&lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
+&lt;&lt;link &quot;Return to clues.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
@@ -639,7 +743,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 
 &lt;&lt;run grabMetricsAndWriteData()&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CorrectResponse_CL" tags="" position="300,700" size="100,100">Well done $playerName, that answer was correct!&lt;&lt;run grabMetricsAndWriteData()&gt;&gt;
 
-&lt;&lt;link &quot;Return to hints.&quot;&gt;&gt;
+&lt;&lt;link &quot;Return to clues.&quot;&gt;&gt;
 	&lt;&lt;goto &quot;CampusLocation&quot;&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 
@@ -720,7 +824,7 @@ It seems you are in the vicinty of NAU&#39;s School of Informatics, Security, an
 	&lt;&lt;goto $previousPassage&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Instructions" tags="" position="800,375" size="100,100">INSTRUCTIONS
 
-On the next screen you will be presented with a series of hints to find landmarks nearby you. Please enter your answers one-at-a-time and then click the &quot;Submit&quot; button for the question you are answering. You have infinite tries on each question, so don&#39;t be afraid to try different answers! To get an idea of the play area you can select the link to &quot;View the play area map&quot;.
+On the next screen you will be presented with a series of clues relating to landmarks near your location. Your goal is to provide the solutions to these clues, which will require you to explore the area. Please enter your answers one-at-a-time and then click the &quot;Submit&quot; button for the question you are answering. You have infinite tries on each question, so don&#39;t be afraid to try different answers! All the answers to the clues can be found in your immediate area, so make sure to explore! To get an idea of the play area you can select the link to &quot;View the play area map&quot;.
 
 That&#39;s all, enjoy the game!
 

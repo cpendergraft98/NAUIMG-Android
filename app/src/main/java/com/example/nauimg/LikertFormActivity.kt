@@ -17,6 +17,7 @@ import java.io.File
 
 class LikertFormActivity : AppCompatActivity() {
 
+    private var playerName: String? = null
     private var sessionId: String? = null
     private lateinit var firestore: FirebaseFirestore
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,7 @@ class LikertFormActivity : AppCompatActivity() {
         val btnReturn = findViewById<Button>(R.id.btnReturn)
         sessionId = intent.getStringExtra("SESSION_ID")
         firestore = FirebaseFirestore.getInstance()
+        playerName = intent.getStringExtra("PLAYER_NAME")
 
         // Handle submit button click
         submitButton.setOnClickListener {
@@ -41,7 +43,7 @@ class LikertFormActivity : AppCompatActivity() {
             // Check if both values were selected
             if (envConnection != null && playerConnection != null) {
                 // Display the result
-                val result = "You rated your connection to the environment as: $envConnection.\n" +
+                val result = "Thank you for your feedback! You may now return to the Main Menu.\n" + "You rated your connection to the environment as: $envConnection.\n" +
                         "You rated your connection to your fellow players as: $playerConnection."
                 resultText.text = result
 
@@ -84,15 +86,16 @@ class LikertFormActivity : AppCompatActivity() {
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         // Create the Likert data to write to Firestore
-        val likertData = hashMapOf(
+        val likertData: Map<String, Any> = mapOf(
             "game" to "Speedtester",
             "androidId" to (androidId ?: "Unknown"),
             "envconnection" to envConnection,
-            "plrconnection" to playerConnection
+            "plrconnection" to playerConnection,
+            "nickname" to (playerName ?: "Unknown") // Make sure playerName is non-null
         )
 
         // Reference to the LikertData collection
-        val likertDataRef = firestore.collection("Movement  Data")
+        val likertDataRef = firestore.collection("Movement Data")
             .document(sessionId!!)
             .collection("LikertData")
 
@@ -105,7 +108,7 @@ class LikertFormActivity : AppCompatActivity() {
                 Log.e("LikertForm", "Error adding Likert data", e)
             }
 
-        //writeDataLocally("LikertData", likertData)
+        writeDataLocally("LikertData", likertData)
     }
 
     private fun writeDataLocally(dataType: String, data: Map<String, Any>) {

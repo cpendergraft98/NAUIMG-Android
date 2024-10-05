@@ -6,7 +6,7 @@
     android:layout_height="match_parent" >
     <Button
         android:id="@+id/returnButton"
-        android:text="Return"
+        android:text="Main Menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <WebView

@@ -87,18 +87,20 @@ class MainActivity : AppCompatActivity() {
         launchButton.setOnClickListener {
             if (sessionId != null) {
                 selectedGame?.let { gameFileName ->
-                    val intent = if (gameFileName == "Speedtest") {
-                        Intent(this, SpeedTestClone::class.java).apply {
+                    if (gameFileName == "Speedtest") {
+                        // Launch NameEntryActivity
+                        val intent = Intent(this, NameEntryActivity::class.java).apply {
                             putExtra("SESSION_ID", sessionId)
                             putExtra("selectedGame", gameFileName)
                         }
+                        startActivity(intent)
                     } else {
-                        Intent(this, WebViewActivity::class.java).apply {
+                        val intent = Intent(this, WebViewActivity::class.java).apply {
                             putExtra("FILENAME", gameFileName)
                             putExtra("SESSION_ID", sessionId)
                         }
+                        startActivity(intent)
                     }
-                    startActivity(intent)
 
                     // Pass the selected game name to the LocationService via the intent
                     val locationServiceIntent = Intent(this, LocationService::class.java).apply {

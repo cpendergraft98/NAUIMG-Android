@@ -66,6 +66,8 @@ class LocationService : Service(), SensorEventListener {
     private lateinit var handlerThread: HandlerThread
     private lateinit var backgroundHandler: Handler
 
+    private var playerName: String? = null
+
     private var writeCounter: Int = 5; // We use this to track when we should be writing data to firestore
 
     // Binder given to clients
@@ -180,21 +182,6 @@ class LocationService : Service(), SensorEventListener {
         startLocationUpdates()
     }
 
-    private val recentLocations = mutableListOf<Location>()
-
-    private fun smoothLocation(newLocation: Location): Location {
-        recentLocations.add(newLocation)
-        if (recentLocations.size > 5) recentLocations.removeAt(0) // Keep only the last 5 locations
-
-        val averageLat = recentLocations.map { it.latitude }.average()
-        val averageLon = recentLocations.map { it.longitude }.average()
-
-        return Location("").apply {
-            latitude = averageLat
-            longitude = averageLon
-        }
-    }
-
     private fun handleLocationUpdate(locationResult: LocationResult, writeCounter: Int) {
         latestLocation?.let { location ->
             val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
@@ -211,6 +198,7 @@ class LocationService : Service(), SensorEventListener {
                 put("session", sessionId ?: "Unknown")
                 put("androidId", androidId)
                 put("game", selectedGame ?: "Unknown")
+                put("nickname", playerName ?: "Unknown")
             }
 
             // Hash Map so Firebase has access to data
@@ -222,16 +210,25 @@ class LocationService : Service(), SensorEventListener {
                 "direction" to direction, // Include latest direction
                 "session" to (sessionId ?: "Unknown"),
                 "androidId" to androidId,
-                "game" to (selectedGame ?: "Unknown")
+                "game" to (selectedGame ?: "Unknown"),
+                "nickname" to (playerName ?: "Unknown")
             )
 
             // Only want to write every fifth location update
             if(writeCounter == 5)
             {
                 // Check if the game is valid (not "Unknown" or null) before writing to Firestore
-                if (selectedGame.isNullOrEmpty() || selectedGame == "Unknown") {
+                if (selectedGame.isNullOrEmpty() || selectedGame == "Unknown")
+                {
                     Log.d("LocationService", "Skipping Firestore write: no game selected or game is 'Unknown'")
-                } else {
+                }
+                // Check if provided playerName is valid
+                else if (playerName.isNullOrEmpty() || playerName == "Unknown")
+                {
+                    Log.d("LocationService", "Skipping Firestore write: no player name provided or name is 'Unknown'")
+                }
+                else
+                {
                     // Append the raw location data to Firestore
                     appendLocationToFirestore(locationDataHM)
                 }
@@ -427,6 +424,12 @@ class LocationService : Service(), SensorEventListener {
 
         // Write data to local storage in for redundancy
         writeDataLocally("LocationData", locationData)
+    }
+
+    fun setPlayerName(name: String)
+    {
+        playerName = name
+        Log.d("LocationService", "Player name set to: $playerName")
     }
 
     private var currentRange: IntRange? = null

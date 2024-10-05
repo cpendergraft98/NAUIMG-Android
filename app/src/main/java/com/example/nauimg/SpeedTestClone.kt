@@ -35,6 +35,14 @@ class SpeedTestClone : AppCompatActivity() {
     private lateinit var btnForm: Button
     private lateinit var vibrator: Vibrator
 
+    // Variables to store the initial metrics
+    private var initialDownloadSpeed: Int = 0
+    private var initialUploadSpeed: Int = 0
+    private var initialLatency: Int = 0
+    private var initialPacketLoss: Int = 0
+    private var initialJitter: Int = 0
+
+    private lateinit var playerName: String
     private lateinit var firestore: FirebaseFirestore
     private var sessionId: String? = null
     private lateinit var androidId: String
@@ -42,6 +50,7 @@ class SpeedTestClone : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_speed_test_clone)
 
+        playerName = intent.getStringExtra("PLAYER_NAME").orEmpty()
         tvTitle = findViewById(R.id.tvTitle)
         tvDownload = findViewById(R.id.tvDownload)
         tvUpload = findViewById(R.id.tvUpload)
@@ -63,6 +72,9 @@ class SpeedTestClone : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         sessionId = intent.getStringExtra("SESSION_ID")
+
+        // Generate initial random metrics
+        generateInitialMetrics()
 
         btnMain.setOnClickListener {
             when (btnMain.text.toString()) {
@@ -132,27 +144,48 @@ class SpeedTestClone : AppCompatActivity() {
         }
 
         btnForm.setOnClickListener {
-            val intent = Intent(this, LikertFormActivity::class.java)
-            intent.putExtra("SESSION_ID", sessionId) // Pass the session ID
+            val intent = Intent(this, LikertFormActivity::class.java).apply{
+                putExtra("SESSION_ID", sessionId)
+                putExtra("PLAYER_NAME", playerName)
+            }
             startActivity(intent) // Start the activity
             finish() // Optionally finish the current activity
         }
     }
+
+    private fun generateInitialMetrics()
+    {
+        val random = Random()
+        initialDownloadSpeed = random.nextInt((75 - 1) + 1) + 1 // Mbps
+        initialUploadSpeed = random.nextInt((75 - 1) + 1) + 1 // Mbps
+        initialLatency = random.nextInt((75 - 1) + 1) + 1 // ms
+        initialPacketLoss = random.nextInt(35) // %
+        initialJitter = random.nextInt((50 - 1) + 1) + 1 // ms
+
+    }
     private fun generateMetrics(): String {
         val random = Random()
 
-        val uploadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
-        val downloadSpeed = random.nextInt((100 - 1) + 1) + 1 // Mbps
-        val jitter = random.nextInt((50 - 1) + 1) + 1 // ms
-        val packetLoss = random.nextInt(100) // %
-        val latency = random.nextInt((100 - 1) + 1) + 1 // ms
+        // Add or subtract a small random value (between 0 and 5) from each metri
+        val uploadSpeed = initialUploadSpeed + random.nextInt(11) - 5 // Adjust by +/- 5
+        val downloadSpeed = initialDownloadSpeed + random.nextInt(11) - 5
+        val jitter = initialJitter + random.nextInt(11) - 5
+        val packetLoss = initialPacketLoss + random.nextInt(6) - 2 // Packet loss may not always change
+        val latency = initialLatency + random.nextInt(11) - 5
+
+        // Ensure metrics stay within a reasonable range (e.g., don't go below 0)
+        val adjustedDownloadSpeed = downloadSpeed.coerceAtLeast(1)
+        val adjustedUploadSpeed =  uploadSpeed.coerceAtLeast(1)
+        val adjustedLatency = latency.coerceAtLeast(1)
+        val adjustedPacketLoss = packetLoss.coerceAtLeast(0)
+        val adjustedJitter = jitter.coerceAtLeast(1)
 
         val metricJSON = JSONObject()
-        metricJSON.put("uploadSpeed", uploadSpeed)
-        metricJSON.put("downloadSpeed", downloadSpeed)
-        metricJSON.put("jitter", jitter)
-        metricJSON.put("packetLoss", packetLoss)
-        metricJSON.put("latency", latency)
+        metricJSON.put("uploadSpeed", adjustedUploadSpeed)
+        metricJSON.put("downloadSpeed", adjustedDownloadSpeed)
+        metricJSON.put("jitter", adjustedJitter)
+        metricJSON.put("packetLoss", adjustedPacketLoss)
+        metricJSON.put("latency", adjustedLatency)
 
         return metricJSON.toString()
     }
@@ -179,7 +212,8 @@ class SpeedTestClone : AppCompatActivity() {
             "longitude" to latestLocation.longitude,
             "game" to "Speedtest",
             "session" to (sessionId ?: "Unknown"),
-            "androidId" to androidId
+            "androidId" to androidId,
+            "nickname" to playerName
         )
 
         val checkDataRef = firestore.collection("Movement Data").document(sessionId!!)
